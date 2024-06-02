@@ -48,7 +48,7 @@ public class UIController : MonoBehaviour
 
         foreach(GameObject i in UIList) {
             if(i.name == UIName) {
-                if(meterValue <= 240) {
+                if(meterValue < 240) {
                     this.UpdateMeter(i.name);
 
                     //Debug

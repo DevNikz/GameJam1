@@ -33,6 +33,10 @@ public class SceneController : MonoBehaviour
     }
 
     private void StateHandler() {
+        if(meterValue >= 240) {
+            meterValue = 0;
+        }
+
         if(this.inputPress) {
             //Update Meter
             meterValue += 10;
@@ -44,8 +48,5 @@ public class SceneController : MonoBehaviour
             EventBroadcaster.Instance.PostEvent(EventNames.Scene1.INCREASE_METER, parameters);
         }
 
-        if(meterValue >= 240) {
-            meterValue = 0;
-        }
     }
 }
