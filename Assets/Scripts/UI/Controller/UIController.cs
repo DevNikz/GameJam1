@@ -2,10 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
 
 public class UIController : MonoBehaviour
 {
+    public static UIController Instance;
+
     [ReadOnly] private GameObject[] UIArray;
     [SerializeField] public List<GameObject> UIList;
 
@@ -27,7 +30,7 @@ public class UIController : MonoBehaviour
 
             this.UIList.Add(i);
         }
-    
+
         //Init Observer for Scene1
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.INCREASE_METER, this.IncreaseMeter);
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.INCREASE_METER, this.LocateMeter);
@@ -52,13 +55,13 @@ public class UIController : MonoBehaviour
                     this.UpdateMeter(i.name);
 
                     //Debug
-                    Debug.Log("Filling Meter!");
+                    //Debug.Log("Filling Meter!");
                 }
                 else {
                     //Call Next Scene
 
                     //Debug
-                    Debug.Log("Meter Full!");
+                    //Debug.Log("Meter Full!");
 
                     //Reset For Debug 
                     this.meterValue = 0;

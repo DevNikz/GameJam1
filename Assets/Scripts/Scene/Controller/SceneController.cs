@@ -1,52 +1,30 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SceneController : MonoBehaviour
 {
-    [Header("Input")]
+    //Scene Properties
+    private int randomIndex;
 
-    [SerializeField] public bool inputPress;
-    [SerializeField] public int meterValue;
+    private Scene currentScene;
 
-    public const string INPUT_PRESS = "INPUT_PRESS";
-
-    private Parameters parameters;
-
-    private SFXController sfxController;
+    public const string SCENE_NAME = "SCENE_NAME";
 
     private void Start() {
-        //Init Observer
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
+        //Debug
+        //Debug.Log(SceneManager.GetActiveScene().name);
+
+        EventBroadcaster.Instance.AddObserver(EventNames.SceneChange.CHANGE_SCENE, this.NextScene);
     }
 
     private void OnDestroy() {
-        EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
+        EventBroadcaster.Instance.RemoveObserver(EventNames.SceneChange.CHANGE_SCENE);
     }
 
-    private void Update() {
-        StateHandler();
-    }
-
-    private void InputPress(Parameters parameters) {
-        inputPress = parameters.GetBoolExtra(INPUT_PRESS, false);
-    }
-
-    private void StateHandler() {
-        if(meterValue >= 240) {
-            meterValue = 0;
-        }
-
-        if(this.inputPress) {
-            //Update Meter
-            meterValue += 10;
-
-            parameters = new Parameters();
-            parameters.PutExtra(UIController.INCREASE_METER, meterValue);
-            parameters.PutExtra(UIController.UI_NAME, "Level [Meter]");
-
-            EventBroadcaster.Instance.PostEvent(EventNames.Scene1.INCREASE_METER, parameters);
-        }
-
+    public void NextScene(Parameters parameters) {
+        Debug.Log("Loading Next Scene");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 }

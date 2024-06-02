@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SFXController : MonoBehaviour
 {
@@ -22,7 +20,9 @@ public class SFXController : MonoBehaviour
     private void Start() {
         audioSource.volume = Volume;
 
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayClip);
+        if(SceneManager.GetActiveScene().buildIndex == 0) {
+            EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayClip);
+        }
     }
 
     private void OnDestroy() {

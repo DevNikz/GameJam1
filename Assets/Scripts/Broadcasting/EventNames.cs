@@ -12,6 +12,10 @@ public class EventNames {
 		public const string INCREASE_METER = "INCREASE_METER";
 		public const string DECREASE_METER = "DECREASE_METER";
 	}
+
+	public class SceneChange {
+		public const string CHANGE_SCENE = "CHANGE_SCENE";
+	}
 }
 
 

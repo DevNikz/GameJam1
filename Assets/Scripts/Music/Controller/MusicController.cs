@@ -12,7 +12,6 @@ public class MusicController : MonoBehaviour
 
     public AudioClip Theme1;
 
-
     private void Start() {
         audioSource.volume = Volume;
 

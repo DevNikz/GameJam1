@@ -13,8 +13,8 @@ public class InputController : MonoBehaviour
 
     //Set Reference to InputAction for Scene 1
     private InputAction _Scene1;
-
-    private void Awake() {
+    
+    private void Start() {
         _playerInput = GetComponent<PlayerInput>();
         SetupInputActions();
     }
@@ -32,7 +32,7 @@ public class InputController : MonoBehaviour
         interactPress = _Scene1.WasPressedThisFrame();
 
         Parameters parameters = new Parameters();
-        parameters.PutExtra(SceneController.INPUT_PRESS, interactPress);
+        parameters.PutExtra(GameController.INPUT_PRESS, interactPress);
         parameters.PutExtra(SFXController.PLAY_CLIP_S1, interactPress);
 
         EventBroadcaster.Instance.PostEvent(EventNames.KeyboardInput.INTERACT_PRESS, parameters);
