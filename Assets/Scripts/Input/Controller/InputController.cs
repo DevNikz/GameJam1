@@ -33,6 +33,7 @@ public class InputController : MonoBehaviour
 
         Parameters parameters = new Parameters();
         parameters.PutExtra(SceneController.INPUT_PRESS, interactPress);
+        parameters.PutExtra(SFXController.PLAY_CLIP_S1, interactPress);
 
         EventBroadcaster.Instance.PostEvent(EventNames.KeyboardInput.INTERACT_PRESS, parameters);
     }

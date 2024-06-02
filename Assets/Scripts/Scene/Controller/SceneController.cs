@@ -13,6 +13,8 @@ public class SceneController : MonoBehaviour
 
     private Parameters parameters;
 
+    private SFXController sfxController;
+
     private void Start() {
         //Init Observer
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
@@ -32,6 +34,7 @@ public class SceneController : MonoBehaviour
 
     private void StateHandler() {
         if(this.inputPress) {
+            //Update Meter
             meterValue += 10;
 
             parameters = new Parameters();
@@ -41,7 +44,7 @@ public class SceneController : MonoBehaviour
             EventBroadcaster.Instance.PostEvent(EventNames.Scene1.INCREASE_METER, parameters);
         }
 
-        if(meterValue > 240) {
+        if(meterValue >= 240) {
             meterValue = 0;
         }
     }
