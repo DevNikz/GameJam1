@@ -8,7 +8,13 @@ public class GameController : MonoBehaviour
 {
     [Header("Object")]
     [SerializeField] public GameObject Daikon;
+
+    [Header("UI")]
+    [SerializeField] public GameObject UI;
+
+    [Header("Particle")]
     [SerializeField] public ParticleSystem ground;
+    [SerializeField] public ParticleSystem pop;
 
     [Header("Input")]
 
@@ -17,31 +23,67 @@ public class GameController : MonoBehaviour
 
     public const string INPUT_PRESS = "INPUT_PRESS";
 
+    public const string DETECT_RUN = "DETECT_RUN";
+
     private Parameters parameters;
 
     private string currentScene;
 
     private bool isPressable = true;
 
+    [Header("Settings")]
+    [SerializeField] public bool firstRun = true;
+
     private void Start() {
         ground.Stop();
+        pop.Clear();
+        pop.Stop();
 
-        currentScene = SceneManager.GetActiveScene().name;
+        //Set Run
+        DetectRun();
 
+        //Set Daikon
         Daikon.SetActive(true);
         Rigidbody rb = Daikon.GetComponent<Rigidbody>();
         rb.useGravity = false;
         Daikon.transform.localPosition = new Vector3(0f, -2.25f, 1.75f);
 
         //Debug
+        currentScene = SceneManager.GetActiveScene().name;
         Debug.Log(currentScene);
 
         //Init Observer
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun);
     }
 
     private void OnDestroy() {
         EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
+    }
+
+    private void DetectRun() {
+        this.firstRun = RunManager.Instance.isFirstRun;
+        if(firstRun) this.UI.SetActive(true);
+        else this.UI.SetActive(false);
+    }
+
+    private void FirstRun(Parameters parameters) {
+        inputPress = parameters.GetBoolExtra(INPUT_PRESS, false);
+
+        if(firstRun) {
+            if(inputPress) {
+                firstRun = false;
+
+                //Disable UI then play Particle
+                this.UI.SetActive(false);
+                this.pop.Play();
+
+                //Change First Run to false
+                Parameters tempParam = new Parameters();
+                tempParam.PutExtra(RunManager.CHANGE_RUN, firstRun);
+                EventBroadcaster.Instance.PostEvent(EventNames.Scene1.CHANGE_RUN, tempParam);
+            }
+        }
     }
     
     private void InputPress(Parameters parameters) {
@@ -53,7 +95,7 @@ public class GameController : MonoBehaviour
             //Play Particle
             ground.Play();
 
-            Debug.Log("Pressed");
+            //Debug.Log("Pressed");
         }
         else ground.Stop();
     }
@@ -77,11 +119,15 @@ public class GameController : MonoBehaviour
         if(this.inputPress && this.isPressable) {
             Rigidbody rb = Daikon.GetComponent<Rigidbody>();
 
+            //Update VFX
+            Parameters tempParam = new Parameters();
+            tempParam.PutExtra(CameraShake.CAMERA_SHAKE, true);
+            EventBroadcaster.Instance.PostEvent(EventNames.Scene1.CAMERA_SHAKE, tempParam);
+
             //Update Object
             if(meterValue == 25) Daikon.transform.localPosition = new Vector3(0f, -2f, 1.75f);
             else if(meterValue == 50) Daikon.transform.localPosition = new Vector3(0f, -1.75f, 1.75f);
             else if(meterValue == 75) Daikon.transform.localPosition = new Vector3(0f, -1.5f, 1.75f);
-
 
             //Update Meter
             meterValue += 5;
@@ -95,7 +141,7 @@ public class GameController : MonoBehaviour
     }
 
     private void DelayedForce() {
-        Debug.Log("Add Force");
+        //Debug.Log("Add Force");
         Rigidbody rb = Daikon.GetComponent<Rigidbody>();
         rb.useGravity = true;
         rb.isKinematic = false;

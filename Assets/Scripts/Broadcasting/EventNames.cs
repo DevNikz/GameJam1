@@ -13,6 +13,12 @@ public class EventNames {
 		public const string DECREASE_METER = "DECREASE_METER";
 
 		public const string DISABLE_SFX = "DISABLE_SFX";
+
+		public const string CHANGE_RUN = "CHANGE_RUN";
+
+		public const string DETECT_RUN = "DETECT_RUN";
+
+		public const string CAMERA_SHAKE = "CAMERA_SHAKE";
 	}
 
 	public class SceneChange {
