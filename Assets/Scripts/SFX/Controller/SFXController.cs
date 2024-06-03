@@ -14,7 +14,8 @@ public class SFXController : MonoBehaviour
     public AudioClip dirt4;
     private int currentIndex = 0;
     private bool inputPress;
-    private bool isPlaying;
+    [SerializeField] public SFXState sfxState = SFXState.Paused;
+    // private bool isPlaying;
 
     public const string PLAY_CLIP_S1 = "PLAY_CLIP_S1";
     public const string DISABLE_SFX = "DISABLE_SFX";
@@ -36,11 +37,12 @@ public class SFXController : MonoBehaviour
     public void PlayClip(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(PLAY_CLIP_S1, false);
 
-        isPlaying = parameters.GetBoolExtra(DISABLE_SFX, true);
+        sfxState = parameters.GetSFXState(DISABLE_SFX, SFXState.Playing);
+        //isPlaying = parameters.GetBoolExtra(DISABLE_SFX, true);
 
-        if(!isPlaying) Destroy(this);
+        if(sfxState == SFXState.Paused) Destroy(this);
         
-        if(inputPress && isPlaying) {
+        if(inputPress && sfxState == SFXState.Playing) {
             if(currentIndex > 3) currentIndex = 0;
             switch(currentIndex) {
                 case 0:

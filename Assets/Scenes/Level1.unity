@@ -5368,6 +5368,50 @@ MonoBehaviour:
   m_LightCookieSize: {x: 1, y: 1}
   m_LightCookieOffset: {x: 0, y: 0}
   m_SoftShadowQuality: 3
+--- !u!1 &482484957
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 482484960}
+  - component: {fileID: 482484959}
+  m_Layer: 0
+  m_Name: Broadcaster
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &482484959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 482484957}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1c5d7245bb250f4daa1a0d034ee96ae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &482484960
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 482484957}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.5800908, y: 2.481258, z: 7.316501}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &543134246
 GameObject:
   m_ObjectHideFlags: 0
@@ -10725,11 +10769,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a7f83622c489d24eb87fba6da3fc0ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isFirstRun: 1
-  isGameEnd: 0
+  startState: 0
+  gameState: 1
   timer: 30
-  pause: 0
-  score: 0
+  timerState: 0
+  Score: 0
 --- !u!1 &869214557
 GameObject:
   m_ObjectHideFlags: 0
@@ -17167,28 +17211,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2166604291521800045
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6186803080398834631}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4639792c87ac2934bafa94d28a7f777d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Daikon: {fileID: 1185353112}
-  UI: {fileID: 1249841750}
-  ground: {fileID: 1820988063}
-  pop: {fileID: 712792381}
-  inputPress: 0
-  meterValue: 0
-  firstRun: 1
-  gameEnd: 0
-  pause: 0
-  score: 0
 --- !u!4 &2468799195749998959
 Transform:
   m_ObjectHideFlags: 0
@@ -17407,7 +17429,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2468799195749998959}
   m_Layer: 0
-  m_Name: Manager
+  m_Name: ManagerTemp
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17550,14 +17572,36 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4598154422593032872}
-  - component: {fileID: 2166604291521800045}
+  - component: {fileID: 6186803080398834632}
   m_Layer: 0
-  m_Name: GameController
+  m_Name: LevelController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &6186803080398834632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6186803080398834631}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7dc6bea9a968d1b43a8c1d511ea63ceb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Daikon: {fileID: 1185353112}
+  UI: {fileID: 1249841750}
+  ground: {fileID: 1820988063}
+  pop: {fileID: 712792381}
+  inputPress: 0
+  meterValue: 0
+  startState: 0
+  gameState: 0
+  levelState: 0
+  timerState: 1
 --- !u!4 &6260554746936881212
 Transform:
   m_ObjectHideFlags: 0
@@ -17655,6 +17699,7 @@ MonoBehaviour:
   dirt2: {fileID: 8300000, guid: 6e5f3f1cae0987f45ba65664a13042be, type: 3}
   dirt3: {fileID: 8300000, guid: 632dda84970e50a488f92f67a9526320, type: 3}
   dirt4: {fileID: 8300000, guid: 1f943ffbf9589ee49b541ea8dc891c6e, type: 3}
+  sfxState: 1
 --- !u!114 &8992447615890125131
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17721,6 +17766,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 2468799195749998959}
+  - {fileID: 482484960}
   - {fileID: 1477361558952389507}
   - {fileID: 846315941}
   - {fileID: 4598154422593032872}

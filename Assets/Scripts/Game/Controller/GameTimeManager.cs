@@ -10,10 +10,10 @@ public class GameTimeManager : MonoBehaviour
     [Header("Game Settings")]
 
     [Tooltip("First Running The Game?")]
-    [SerializeField] public bool isFirstRun = true;
+    [SerializeField] public StartState startState = StartState.Yes;
 
-    [Tooltip("Game End?")]
-    [SerializeField] public bool isGameEnd = false;
+    [Tooltip("Current Game State")]
+    [SerializeField] public GameState gameState = GameState.Play;
 
     [Header("Timer Settings")]
     
@@ -21,8 +21,7 @@ public class GameTimeManager : MonoBehaviour
     [SerializeField] public float timer = 30f;
 
     [Tooltip("Is Timer paused?")]
-    [SerializeField] public bool pause = false;
-
+    [SerializeField] public TimerState timerState = TimerState.Playing;
 
     [Header("Score")] 
     [SerializeField] public int Score;
@@ -40,36 +39,54 @@ public class GameTimeManager : MonoBehaviour
     }
 
     private void Start() {
+        InitStart();
+    }
+
+    private void OnDestroy() {
+        RemoveObservers();
+    }
+
+    private void InitStart() {
+        InitVars();
+        AddObservers();
+    }
+
+    private void InitVars() {
+        startState = StartState.Yes;
+        gameState = GameState.Play;
+    }
+
+    private void AddObservers() {
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.CHANGE_RUN, this.DetectRun);
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.PAUSE_TIMER, this.DetectTimer);
     }
 
-    private void OnDestroy() {
+    private void RemoveObservers() {
         EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.CHANGE_RUN);
         EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.PAUSE_TIMER);
     }
 
     private void Update() {
-        this.Score = PlayerData.Score;
+        Score = PlayerData.Score;
 
-        if(this.timer > 0 && !pause) {
+        if(timer > 0 && timerState == TimerState.Playing) {
             timer -= Time.deltaTime;
-            if(this.timer <= 0) {
-                this.isGameEnd = true;
+            if(timer <= 0) {
+                gameState = GameState.End;
             }
         }
     }
 
     private void DetectRun(Parameters parameters) {
-        this.isFirstRun = parameters.GetBoolExtra(CHANGE_RUN, true);
+        startState = parameters.GetStartState(CHANGE_RUN, StartState.Yes);
 
-        if(isFirstRun) Debug.Log("Run: First Run!");
+        if(startState == StartState.Yes) Debug.Log("Run: First Run!");
         else {
-            this.isFirstRun = false;
+            startState = StartState.No;
         }
     }
 
     private void DetectTimer(Parameters parameters) {
-        this.pause = parameters.GetBoolExtra(PAUSE_TIMER, false);
+        timerState = parameters.GetTimerState(PAUSE_TIMER, TimerState.Playing);
     }
 }

@@ -13,8 +13,6 @@ public class SceneController : MonoBehaviour
     public const string SCENE_NAME = "SCENE_NAME";
 
     private void Start() {
-        //Debug
-        //Debug.Log(SceneManager.GetActiveScene().name);
 
         EventBroadcaster.Instance.AddObserver(EventNames.SceneChange.CHANGE_SCENE, this.NextScene);
     }

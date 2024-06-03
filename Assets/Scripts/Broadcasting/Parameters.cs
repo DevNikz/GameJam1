@@ -19,6 +19,12 @@ public class Parameters {
 	private Dictionary<string, ArrayList> arrayListData;
 	private Dictionary<string, object> objectListData;
 	private Dictionary<string, Collider> colliderListData;
+	private Dictionary<string, StartState> startStateData;
+	private Dictionary<string, GameState> gameStateData;
+	private Dictionary<string, LevelState> levelStateData;
+	private Dictionary<string, TimerState> timerStateData;
+
+	private Dictionary<string, SFXState> sfxStateData;
 
 	public Parameters() {
 		this.charData = new Dictionary<string, char>();
@@ -33,6 +39,11 @@ public class Parameters {
 		this.objectListData = new Dictionary<string, object>();
 		this.vector3Data = new Dictionary<string, Vector3>();
 		this.colliderListData = new Dictionary<string, Collider>();
+		this.startStateData = new Dictionary<string, StartState>();
+		this.gameStateData = new Dictionary<string, GameState>();
+		this.levelStateData = new Dictionary<string, LevelState>();
+		this.timerStateData = new Dictionary<string, TimerState>();
+		this.sfxStateData = new Dictionary<string, SFXState>();
 	}
 
 	public void PutExtra(string paramName, bool value) {
@@ -96,6 +107,26 @@ public class Parameters {
 		else {
 			return defaultValue;
 		}
+	}
+
+	public void PutExtra(string paramName, StartState value) {
+		this.startStateData.Add(paramName, value);
+	}
+
+	public void PutExtra(string paramName, GameState value) {
+		this.gameStateData.Add(paramName, value);
+	}
+
+	public void PutExtra(string paramName, LevelState value) {
+		this.levelStateData.Add(paramName, value);
+	}
+
+	public void PutExtra(string paramName, TimerState value) {
+		this.timerStateData.Add(paramName, value);
+	}
+
+	public void PutExtra(string paramName, SFXState value) {
+		this.sfxStateData.Add(paramName, value);
 	}
 
 	public char GetCharExtra(string paramName, char defaultValue) {
@@ -205,6 +236,51 @@ public class Parameters {
 		}
 		else {
 			return null;
+		}
+	}
+
+	public StartState GetStartState(string paramName, StartState defaultvalue) {
+		if(this.startStateData.ContainsKey(paramName)) {
+			return this.startStateData[paramName];
+		}
+		else {
+			return defaultvalue;
+		}
+	}
+
+	public GameState GetGameState(string paramName, GameState defaultvalue) {
+		if(this.gameStateData.ContainsKey(paramName)) {
+			return this.gameStateData[paramName];
+		}
+		else {
+			return defaultvalue;
+		}
+	}
+
+	public LevelState GetLevelState(string paramName, LevelState defaultvalue) {
+		if(this.levelStateData.ContainsKey(paramName)) {
+			return this.levelStateData[paramName];
+		}
+		else {
+			return defaultvalue;
+		}
+	}
+
+	public TimerState GetTimerState(string paramName, TimerState defaultvalue) {
+		if(this.timerStateData.ContainsKey(paramName)) {
+			return this.timerStateData[paramName];
+		}
+		else {
+			return defaultvalue;
+		}
+	}
+
+	public SFXState GetSFXState(string paramName, SFXState defaultvalue) {
+		if(this.sfxStateData.ContainsKey(paramName)) {
+			return this.sfxStateData[paramName];
+		}
+		else {
+			return defaultvalue;
 		}
 	}
 }
