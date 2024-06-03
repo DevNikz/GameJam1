@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class MusicController : MonoBehaviour
 {
+    public static MusicController Instance;
 
     public AudioSource audioSource;
 
@@ -13,7 +14,12 @@ public class MusicController : MonoBehaviour
     public AudioClip Theme1;
 
     private void Awake() {
-        DontDestroyOnLoad(this);
+        if(Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        } 
+        else Destroy(this);
+        
     }
 
     private void Start() {
