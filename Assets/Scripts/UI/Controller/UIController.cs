@@ -51,22 +51,23 @@ public class UIController : MonoBehaviour
 
         foreach(GameObject i in UIList) {
             if(i.name == UIName) {
-                if(meterValue < 240) {
-                    this.UpdateMeter(i.name);
+                this.UpdateMeter(i.name);
+                // if(meterValue < 240) {
+                    
 
-                    //Debug
-                    //Debug.Log("Filling Meter!");
-                }
-                else {
-                    //Call Next Scene
+                //     //Debug
+                //     //Debug.Log("Filling Meter!");
+                // }
+                // else {
+                //     //Call Next Scene
 
-                    //Debug
-                    //Debug.Log("Meter Full!");
+                //     //Debug
+                //     //Debug.Log("Meter Full!");
 
-                    //Reset For Debug 
-                    this.meterValue = 0;
-                    this.UpdateMeter(i.name);
-                }
+                //     //Reset For Debug 
+                //     this.meterValue = 0;
+                //     this.UpdateMeter(i.name);
+                // }
             }
         }
     }

@@ -14,27 +14,34 @@ public class SFXController : MonoBehaviour
     public AudioClip dirt4;
     private int currentIndex = 0;
     private bool inputPress;
+    private bool isPlaying;
 
     public const string PLAY_CLIP_S1 = "PLAY_CLIP_S1";
+    public const string DISABLE_SFX = "DISABLE_SFX";
 
     private void Start() {
         audioSource.volume = Volume;
 
         if(SceneManager.GetActiveScene().buildIndex == 0) {
             EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayClip);
+            EventBroadcaster.Instance.AddObserver(EventNames.Scene1.DISABLE_SFX, this.PlayClip);
         }
     }
 
     private void OnDestroy() {
         EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
+        EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.DISABLE_SFX);
     }
 
     public void PlayClip(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(PLAY_CLIP_S1, false);
 
-        if(inputPress) {
-            if(currentIndex > 3) currentIndex = 0;
+        isPlaying = parameters.GetBoolExtra(DISABLE_SFX, true);
 
+        if(!isPlaying) Destroy(this);
+        
+        if(inputPress && isPlaying) {
+            if(currentIndex > 3) currentIndex = 0;
             switch(currentIndex) {
                 case 0:
                     audioSource.PlayOneShot(dirt1, Volume);
@@ -50,7 +57,6 @@ public class SFXController : MonoBehaviour
                     break;
             }
             currentIndex += 1;
-
         }
     }
 }

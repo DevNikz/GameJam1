@@ -12,6 +12,10 @@ public class MusicController : MonoBehaviour
 
     public AudioClip Theme1;
 
+    private void Awake() {
+        DontDestroyOnLoad(this);
+    }
+
     private void Start() {
         audioSource.volume = Volume;
 

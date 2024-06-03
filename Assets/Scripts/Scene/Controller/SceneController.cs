@@ -24,7 +24,7 @@ public class SceneController : MonoBehaviour
     }
 
     public void NextScene(Parameters parameters) {
-        Debug.Log("Loading Next Scene");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        Debug.Log("Reloading Level");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
