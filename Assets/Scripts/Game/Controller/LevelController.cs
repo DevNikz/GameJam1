@@ -24,13 +24,12 @@ public class LevelController : MonoBehaviour
     private Parameters parameters;
 
     [Header("Settings")]
-
     [SerializeField] public StartState startState = StartState.Yes;
     [SerializeField] public GameState gameState = GameState.Play; 
     [SerializeField] public LevelState levelState = LevelState.Playable;
+    [SerializeField] public VFXState vfxState = VFXState.Paused;
 
     private void Start() {
-        Debug.Log("Init Start");
         InitStart();
     }
 
@@ -55,6 +54,7 @@ public class LevelController : MonoBehaviour
     private void InitVars() {
         gameState = GameState.Play;
         levelState = LevelState.Playable;
+        meterValue = 0;
     }
 
     private void InitDaikon() {
@@ -137,9 +137,8 @@ public class LevelController : MonoBehaviour
             PlayerData.Score += 10;
 
             //Update VFX
-            Parameters tempParam = new Parameters();
-            tempParam.PutExtra(CameraShake.CAMERA_SHAKE, true);
-            EventBroadcaster.Instance.PostEvent(EventNames.Scene1.CAMERA_SHAKE, tempParam);
+            vfxState = VFXState.Playing;
+            Broadcaster.Instance.AddVFXState(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, vfxState);
 
             //Update Object
             if(meterValue == 25) Daikon.transform.localPosition = new Vector3(0f, -2f, 1.75f);
@@ -149,16 +148,11 @@ public class LevelController : MonoBehaviour
             //Update Meter
             meterValue += 5;
 
-            parameters = new Parameters();
-            parameters.PutExtra(UIController.INCREASE_METER, meterValue);
-            parameters.PutExtra(UIController.UI_NAME, "Level [Meter]");
-
-            EventBroadcaster.Instance.PostEvent(EventNames.Scene1.INCREASE_METER, parameters);
+            Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER, EventNames.Scene1.INCREASE_METER, meterValue);
         }
     }
 
     private void DelayedForce() {
-        //Debug.Log("Add Force");
         Rigidbody rb = Daikon.GetComponent<Rigidbody>();
         rb.useGravity = true;
         rb.isKinematic = false;
@@ -180,8 +174,7 @@ public class LevelController : MonoBehaviour
     private void ChangeScene() {
 
         //ChangeScene
-        Broadcaster.Instance.AddStringParam(SceneController.SCENE_NAME, 
-                                            EventNames.SceneChange.CHANGE_SCENE ,SceneManager.GetActiveScene().name);
+        SceneController.Instance.LoadScene();
 
         //Resume Func
         Broadcaster.Instance.AddTimerState(GameTimeManager.PAUSE_TIMER, 

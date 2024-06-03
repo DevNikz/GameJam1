@@ -65,4 +65,10 @@ public class Broadcaster : MonoBehaviour
         EventBroadcaster.Instance.PostEvent(eventName, tempParam);
     }
 
+    public void AddVFXState(string stateName, string eventName, VFXState Value) {
+        Parameters tempParam = new Parameters();
+        tempParam.PutExtra(stateName, Value);
+        EventBroadcaster.Instance.PostEvent(eventName, tempParam);
+    }
+
 }

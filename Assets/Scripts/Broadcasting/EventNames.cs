@@ -10,7 +10,6 @@ public class EventNames {
 
 	public class Scene1 {
 		public const string INCREASE_METER = "INCREASE_METER";
-		public const string DECREASE_METER = "DECREASE_METER";
 
 		public const string DISABLE_SFX = "DISABLE_SFX";
 

@@ -23,6 +23,8 @@ public class MusicController : MonoBehaviour
     }
 
     private void Start() {
+        audioSource = this.gameObject.GetComponent<AudioSource>();
+
         audioSource.volume = Volume;
 
         audioSource.clip = Theme1;

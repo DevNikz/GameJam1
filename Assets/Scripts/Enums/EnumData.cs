@@ -31,8 +31,3 @@ public enum VFXState {
     Playing,
     Paused
 }
-
-public enum InteractState {
-    Pressed,
-    Released
-}

@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 
 public class SceneController : MonoBehaviour
 {
+    public static SceneController Instance;
+    
     //Scene Properties
     private int randomIndex;
 
@@ -12,17 +14,16 @@ public class SceneController : MonoBehaviour
 
     public const string SCENE_NAME = "SCENE_NAME";
 
-    private void Start() {
-
-        EventBroadcaster.Instance.AddObserver(EventNames.SceneChange.CHANGE_SCENE, this.NextScene);
+    private void Awake() {
+        if(Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else Destroy(this);
     }
 
-    private void OnDestroy() {
-        EventBroadcaster.Instance.RemoveObserver(EventNames.SceneChange.CHANGE_SCENE);
-    }
-
-    public void NextScene(Parameters parameters) {
-        Debug.Log("Reloading Level");
+    public void LoadScene() {
+        Debug.Log(SceneManager.GetActiveScene().buildIndex);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

@@ -3,43 +3,56 @@ using UnityEngine.SceneManagement;
 
 public class SFXController : MonoBehaviour
 {
-
+    public static SFXController Instance;
     public AudioSource audioSource;
-
     [SerializeField] public float Volume = 1f;
 
+    //Level 1
     public AudioClip dirt1;
     public AudioClip dirt2;
     public AudioClip dirt3;
     public AudioClip dirt4;
+
+    //Level 2
+    public AudioClip water1;
     private int currentIndex = 0;
     private bool inputPress;
     [SerializeField] public SFXState sfxState = SFXState.Paused;
-    // private bool isPlaying;
-
     public const string PLAY_CLIP_S1 = "PLAY_CLIP_S1";
     public const string DISABLE_SFX = "DISABLE_SFX";
 
+    private void Awake() {
+        if(Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
+        else Destroy(this);
+    }
+
     private void Start() {
         audioSource.volume = Volume;
+        audioSource = this.gameObject.GetComponent<AudioSource>();
 
-        if(SceneManager.GetActiveScene().buildIndex == 0) {
-            EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayClip);
-            EventBroadcaster.Instance.AddObserver(EventNames.Scene1.DISABLE_SFX, this.PlayClip);
-        }
+        if(SceneManager.GetActiveScene().buildIndex == 0) loadLevelOne();
     }
 
     private void OnDestroy() {
+        if(SceneManager.GetActiveScene().buildIndex == 0) destroyLevelOne();
+    }
+
+    private void loadLevelOne() {
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayClip);
+        EventBroadcaster.Instance.AddObserver(EventNames.Scene1.DISABLE_SFX, this.PlayClip);
+    }
+
+    private void destroyLevelOne() {
         EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
         EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.DISABLE_SFX);
     }
 
     public void PlayClip(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(PLAY_CLIP_S1, false);
-
         sfxState = parameters.GetSFXState(DISABLE_SFX, SFXState.Playing);
-        //isPlaying = parameters.GetBoolExtra(DISABLE_SFX, true);
-
         if(sfxState == SFXState.Paused) Destroy(this);
         
         if(inputPress && sfxState == SFXState.Playing) {

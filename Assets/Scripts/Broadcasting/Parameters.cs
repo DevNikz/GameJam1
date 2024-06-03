@@ -23,8 +23,8 @@ public class Parameters {
 	private Dictionary<string, GameState> gameStateData;
 	private Dictionary<string, LevelState> levelStateData;
 	private Dictionary<string, TimerState> timerStateData;
-
 	private Dictionary<string, SFXState> sfxStateData;
+	private Dictionary<string, VFXState> vfxStateData;
 
 	public Parameters() {
 		this.charData = new Dictionary<string, char>();
@@ -44,6 +44,7 @@ public class Parameters {
 		this.levelStateData = new Dictionary<string, LevelState>();
 		this.timerStateData = new Dictionary<string, TimerState>();
 		this.sfxStateData = new Dictionary<string, SFXState>();
+		this.vfxStateData = new Dictionary<string, VFXState>();
 	}
 
 	public void PutExtra(string paramName, bool value) {
@@ -127,6 +128,9 @@ public class Parameters {
 
 	public void PutExtra(string paramName, SFXState value) {
 		this.sfxStateData.Add(paramName, value);
+	}
+	public void PutExtra(string paramName, VFXState value) {
+		this.vfxStateData.Add(paramName, value);
 	}
 
 	public char GetCharExtra(string paramName, char defaultValue) {
@@ -278,6 +282,15 @@ public class Parameters {
 	public SFXState GetSFXState(string paramName, SFXState defaultvalue) {
 		if(this.sfxStateData.ContainsKey(paramName)) {
 			return this.sfxStateData[paramName];
+		}
+		else {
+			return defaultvalue;
+		}
+	}
+
+	public VFXState GetVFXState(string paramName, VFXState defaultvalue) {
+		if(this.vfxStateData.ContainsKey(paramName)) {
+			return this.vfxStateData[paramName];
 		}
 		else {
 			return defaultvalue;

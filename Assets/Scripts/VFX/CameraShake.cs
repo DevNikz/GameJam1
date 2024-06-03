@@ -37,10 +37,6 @@ public class CameraShake : MonoBehaviour
 
     private void EnableShake(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(CAMERA_SHAKE, false);
-
-        if(inputPress) {
-            Debug.Log("Shaking"); ShakeCamera();  
-        }
     }
 
     public void ShakeCamera() {

@@ -69,8 +69,12 @@ public class GameTimeManager : MonoBehaviour
     private void Update() {
         Score = PlayerData.Score;
 
+        //Debug
+        Debug.Log((int)PlayerData.Timer);
+
         if(timer > 0 && timerState == TimerState.Playing) {
             timer -= Time.deltaTime;
+            PlayerData.Timer = timer;
             if(timer <= 0) {
                 gameState = GameState.End;
             }
