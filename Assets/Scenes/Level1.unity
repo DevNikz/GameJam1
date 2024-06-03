@@ -11472,8 +11472,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cinemachineVirtualCamera: {fileID: 1427237807}
-  ShakeIntensity: 1
-  ShakeTime: 0.2
+  ShakeIntensity: 0.5
+  ShakeTime: 0.1
+  timer: 0
 --- !u!1 &1430893220
 GameObject:
   m_ObjectHideFlags: 0

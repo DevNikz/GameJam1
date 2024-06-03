@@ -7,8 +7,8 @@ using System.Threading;
 public class CameraShake : MonoBehaviour
 {
     public CinemachineVirtualCamera cinemachineVirtualCamera;
-    [SerializeField] public float ShakeIntensity = 0.25f;
-    [SerializeField] public float ShakeTime = 0.2f;
+    [SerializeField] public float ShakeIntensity = 0.5f;
+    [SerializeField] public float ShakeTime = 0.1f;
 
     public float timer = 0;
     private CinemachineBasicMultiChannelPerlin _cbmcp;
