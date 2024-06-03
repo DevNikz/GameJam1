@@ -16,9 +16,11 @@ public class EventNames {
 
 		public const string CHANGE_RUN = "CHANGE_RUN";
 
-		public const string DETECT_RUN = "DETECT_RUN";
-
 		public const string CAMERA_SHAKE = "CAMERA_SHAKE";
+
+		public const string PAUSE_TIMER = "PAUSE_TIMER";
+
+		public const string CHANGE_SCORE = "CHANGE_SCORE";
 	}
 
 	public class SceneChange {

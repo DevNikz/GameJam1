@@ -10692,7 +10692,7 @@ GameObject:
   - component: {fileID: 846315941}
   - component: {fileID: 846315942}
   m_Layer: 0
-  m_Name: runtimeManager
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10722,10 +10722,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 846315940}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 894de7273c98f4845aaee55041240fdd, type: 3}
+  m_Script: {fileID: 11500000, guid: 8a7f83622c489d24eb87fba6da3fc0ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   isFirstRun: 1
+  isGameEnd: 0
+  timer: 30
+  pause: 0
+  score: 0
 --- !u!1 &869214557
 GameObject:
   m_ObjectHideFlags: 0
@@ -10757,7 +10761,6 @@ Transform:
   m_Children:
   - {fileID: 6260554746936881212}
   - {fileID: 9136191057605157808}
-  - {fileID: 4598154422593032872}
   m_Father: {fileID: 1197411425}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &908298779
@@ -17183,6 +17186,9 @@ MonoBehaviour:
   inputPress: 0
   meterValue: 0
   firstRun: 1
+  gameEnd: 0
+  pause: 0
+  score: 0
 --- !u!4 &2468799195749998959
 Transform:
   m_ObjectHideFlags: 0
@@ -17288,11 +17294,11 @@ Transform:
   m_GameObject: {fileID: 6186803080398834631}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -1, z: -10}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 869214558}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!82 &4920313450951973661
 AudioSource:
@@ -17717,6 +17723,7 @@ SceneRoots:
   - {fileID: 2468799195749998959}
   - {fileID: 1477361558952389507}
   - {fileID: 846315941}
+  - {fileID: 4598154422593032872}
   - {fileID: 1197411425}
   - {fileID: 1840462196}
   - {fileID: 624552530}

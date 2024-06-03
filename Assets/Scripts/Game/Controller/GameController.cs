@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class GameController : MonoBehaviour
 {
+
     [Header("Object")]
     [SerializeField] public GameObject Daikon;
 
@@ -29,15 +32,26 @@ public class GameController : MonoBehaviour
 
     private string currentScene;
 
-    private bool isPressable = true;
+    private bool isPressable;
 
     [Header("Settings")]
     [SerializeField] public bool firstRun = true;
+
+    [SerializeField] public bool gameEnd = false;
+
+    [SerializeField] public bool pause = false;
+
+    public int score = 10;
 
     private void Start() {
         ground.Stop();
         pop.Clear();
         pop.Stop();
+
+        score = 0;
+
+        pause = false;
+        isPressable = true;
 
         //Set Run
         DetectRun();
@@ -62,9 +76,13 @@ public class GameController : MonoBehaviour
     }
 
     private void DetectRun() {
-        this.firstRun = RunManager.Instance.isFirstRun;
+        this.firstRun = GameTimeManager.Instance.isFirstRun;
+        this.gameEnd = GameTimeManager.Instance.isGameEnd;
+
         if(firstRun) this.UI.SetActive(true);
         else this.UI.SetActive(false);
+
+        if(gameEnd) Debug.Log("Game Ended");
     }
 
     private void FirstRun(Parameters parameters) {
@@ -80,7 +98,7 @@ public class GameController : MonoBehaviour
 
                 //Change First Run to false
                 Parameters tempParam = new Parameters();
-                tempParam.PutExtra(RunManager.CHANGE_RUN, firstRun);
+                tempParam.PutExtra(GameTimeManager.CHANGE_RUN, firstRun);
                 EventBroadcaster.Instance.PostEvent(EventNames.Scene1.CHANGE_RUN, tempParam);
             }
         }
@@ -94,14 +112,18 @@ public class GameController : MonoBehaviour
         if(inputPress) {
             //Play Particle
             ground.Play();
-
-            //Debug.Log("Pressed");
         }
         else ground.Stop();
     }
 
     private void StateHandler() {
         if(meterValue >= 100) {
+            //Pause Func
+            parameters = new Parameters();
+            parameters.PutExtra(GameTimeManager.PAUSE_TIMER, true);
+            EventBroadcaster.Instance.PostEvent(EventNames.Scene1.PAUSE_TIMER, parameters);
+            
+
             //Init this scene as not pressable
             this.isPressable = false;
 
@@ -118,6 +140,13 @@ public class GameController : MonoBehaviour
 
         if(this.inputPress && this.isPressable) {
             Rigidbody rb = Daikon.GetComponent<Rigidbody>();
+
+            // Add Score to manager
+            // Parameters tempScore = new Parameters();
+            // tempScore.PutExtra(GameTimeManager.CHANGE_SCORE, score);
+            // EventBroadcaster.Instance.PostEvent(EventNames.Scene1.CHANGE_SCORE, tempScore);
+
+            PlayerData.Score += 10;
 
             //Update VFX
             Parameters tempParam = new Parameters();
@@ -163,7 +192,11 @@ public class GameController : MonoBehaviour
     private void ChangeScene() {
         parameters = new Parameters();
         parameters.PutExtra(SceneController.SCENE_NAME, SceneManager.GetActiveScene().name);
-
         EventBroadcaster.Instance.PostEvent(EventNames.SceneChange.CHANGE_SCENE, parameters);
+
+        //Resume Func
+        parameters = new Parameters();
+        parameters.PutExtra(GameTimeManager.PAUSE_TIMER, false);
+        EventBroadcaster.Instance.PostEvent(EventNames.Scene1.PAUSE_TIMER, parameters);
     }
 }
