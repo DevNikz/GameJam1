@@ -97,6 +97,38 @@ MonoBehaviour:
   gain:
     m_OverrideState: 1
     m_Value: {x: 1, y: 1, z: 1, w: -0.13343215}
+--- !u!114 &-3013742060791325790
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4ad92b2d4441c34c8fc9eb5b2e51fd2, type: 3}
+  m_Name: PixelationVol
+  m_EditorClassIdentifier: 
+  active: 1
+  m_Scale:
+    m_OverrideState: 1
+    m_Value: 0.894
+  m_Grid:
+    m_OverrideState: 1
+    m_Value: 1
+  m_Roundness:
+    m_OverrideState: 1
+    m_Value: 1
+  m_Color:
+    m_OverrideState: 1
+    m_Value: {r: 0, g: 0, b: 0, a: 0}
+    hdr: 0
+  m_Palette:
+    m_OverrideState: 1
+    m_Value: {fileID: 0}
+  m_Impact:
+    m_OverrideState: 1
+    m_Value: 0
 --- !u!114 &-1418317713283802818
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -150,6 +182,46 @@ MonoBehaviour:
   saturation:
     m_OverrideState: 1
     m_Value: 9
+--- !u!114 &-511327985700218406
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdfbdbb87d3286943a057f7791b43141, type: 3}
+  m_Name: ChannelMixer
+  m_EditorClassIdentifier: 
+  active: 1
+  redOutRedIn:
+    m_OverrideState: 0
+    m_Value: -200
+  redOutGreenIn:
+    m_OverrideState: 0
+    m_Value: -200
+  redOutBlueIn:
+    m_OverrideState: 0
+    m_Value: 200
+  greenOutRedIn:
+    m_OverrideState: 0
+    m_Value: -200
+  greenOutGreenIn:
+    m_OverrideState: 0
+    m_Value: -200
+  greenOutBlueIn:
+    m_OverrideState: 0
+    m_Value: -200
+  blueOutRedIn:
+    m_OverrideState: 0
+    m_Value: -200
+  blueOutGreenIn:
+    m_OverrideState: 0
+    m_Value: -200
+  blueOutBlueIn:
+    m_OverrideState: 0
+    m_Value: -200
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,6 +235,7 @@ MonoBehaviour:
   m_Name: SampleSceneProfile
   m_EditorClassIdentifier: 
   components:
+  - {fileID: -3013742060791325790}
   - {fileID: 7399906818131587316}
   - {fileID: 849379129802519247}
   - {fileID: -7893295128165547882}
@@ -173,6 +246,7 @@ MonoBehaviour:
   - {fileID: 5637297793116287209}
   - {fileID: -5820076790508855307}
   - {fileID: 5700029226180355249}
+  - {fileID: -511327985700218406}
 --- !u!114 &849379129802519247
 MonoBehaviour:
   m_ObjectHideFlags: 3

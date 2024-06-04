@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: d95efb55177103e42bbc6a1c88d2ad14
+timeCreated: 1697796247
+AssetOrigin:
+  serializedVersion: 1
+  productId: 280822
+  packageName: DitherFx
+  packageVersion: 1.0
+  assetPath: Assets/Dither/Runtime/Common/VolFx.Pass.cs
+  uploadId: 667732

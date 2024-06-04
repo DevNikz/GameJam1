@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: c3c0fc934cc6d8843ab51fbdeeb3f000
+timeCreated: 1697620992
+AssetOrigin:
+  serializedVersion: 1
+  productId: 280822
+  packageName: DitherFx
+  packageVersion: 1.0
+  assetPath: Assets/Dither/Editor/PassDrawer.cs
+  uploadId: 667732
