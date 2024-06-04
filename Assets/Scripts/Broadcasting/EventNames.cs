@@ -20,6 +20,8 @@ public class EventNames {
 		public const string PAUSE_TIMER = "PAUSE_TIMER";
 
 		public const string CHANGE_SCORE = "CHANGE_SCORE";
+
+		public const string COUNTER_ANIMATE = "COUNTER_ANIMATE";
 	}
 
 	public class SceneChange {

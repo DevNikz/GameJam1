@@ -43,7 +43,7 @@ public class LevelController : MonoBehaviour
     private void Start() {
         InitStart();
         
-        canvasObject.GetComponent<CanvasGroup>().alpha = 0;
+        
         // scoreAlpha.alpha = 0;
     }
 
@@ -55,9 +55,6 @@ public class LevelController : MonoBehaviour
         
         LeanTween.alphaCanvas(tempCanvas.GetComponent<CanvasGroup>(), 1, 0.35f);
         LeanTween.moveLocalY(tempCanvas.GetComponentInChildren<RectTransform>().gameObject, 2f, 0.25f).setOnComplete(FadeOut);
-
-        // box.localPosition = new Vector3(-155, -105, 0);
-        // box.LeanMoveLocalY(-90f,0.5f).setEaseOutExpo();
     }
 
     private void FadeOut() {
@@ -90,6 +87,7 @@ public class LevelController : MonoBehaviour
         gameState = GameState.Play;
         levelState = LevelState.Playable;
         meterValue = 0;
+        canvasObject.GetComponent<CanvasGroup>().alpha = 0;
     }
 
     private void InitDaikon() {
