@@ -6,8 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class InputController : MonoBehaviour
 {
-    public static InputController Instance;
-
     //Scene 1 Controls
     public bool interactPress { get; private set; }
 
@@ -16,14 +14,6 @@ public class InputController : MonoBehaviour
 
     //Set Reference to InputAction for Scene 1
     private InputAction _Scene1;
-
-    private void Awake() {
-        if(Instance == null) {
-            Instance = this;
-            DontDestroyOnLoad(this);
-        }
-        else Destroy(this);
-    }
     
     private void Start() {
         _playerInput = GetComponent<PlayerInput>();

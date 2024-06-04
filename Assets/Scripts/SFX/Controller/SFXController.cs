@@ -3,7 +3,6 @@ using UnityEngine.SceneManagement;
 
 public class SFXController : MonoBehaviour
 {
-    public static SFXController Instance;
     public AudioSource audioSource;
     [SerializeField] public float Volume = 1f;
 
@@ -20,14 +19,6 @@ public class SFXController : MonoBehaviour
     [SerializeField] public SFXState sfxState = SFXState.Paused;
     public const string PLAY_CLIP_S1 = "PLAY_CLIP_S1";
     public const string DISABLE_SFX = "DISABLE_SFX";
-
-    private void Awake() {
-        if(Instance == null) {
-            Instance = this;
-            DontDestroyOnLoad(this);
-        }
-        else Destroy(this);
-    }
 
     private void Start() {
         audioSource.volume = Volume;

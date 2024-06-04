@@ -7,8 +7,8 @@ public class Broadcaster : MonoBehaviour
     public static Broadcaster Instance;
 
     private void Awake() {
-        if(Instance == null) { Instance = this; DontDestroyOnLoad(this); }
-        else Destroy(this);
+        if(Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
+        else Destroy(gameObject);
     }
 
     public void AddIntParam(string stateName, string eventName, int Value) {

@@ -1,5 +1,6 @@
+using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour
 {
@@ -29,8 +30,42 @@ public class LevelController : MonoBehaviour
     [SerializeField] public LevelState levelState = LevelState.Playable;
     [SerializeField] public VFXState vfxState = VFXState.Paused;
 
+    [Header("UI Settings")]
+    [SerializeField] public GameObject canvasObject;
+    [SerializeField] public GameObject textObject;
+    [SerializeReference] public List<GameObject> canvasList;
+
+    // [SerializeField] public RectTransform box;
+    // [SerializeField] public CanvasGroup scoreAlpha;
+
+    private Vector3 localPos;
+
     private void Start() {
         InitStart();
+        
+        canvasObject.GetComponent<CanvasGroup>().alpha = 0;
+        // scoreAlpha.alpha = 0;
+    }
+
+    private void EnableAnim() {
+        GameObject tempCanvas = Instantiate(canvasObject, canvasObject.transform.position, Quaternion.identity);
+        canvasList.Add(tempCanvas);
+
+        tempCanvas.GetComponent<CanvasGroup>().alpha = 0;
+        
+        LeanTween.alphaCanvas(tempCanvas.GetComponent<CanvasGroup>(), 1, 0.35f);
+        LeanTween.moveLocalY(tempCanvas.GetComponentInChildren<RectTransform>().gameObject, 2f, 0.25f).setOnComplete(FadeOut);
+
+        // box.localPosition = new Vector3(-155, -105, 0);
+        // box.LeanMoveLocalY(-90f,0.5f).setEaseOutExpo();
+    }
+
+    private void FadeOut() {
+        canvasList[0].GetComponent<CanvasGroup>().alpha = 0;
+        LeanTween.alphaCanvas(canvasList[0].GetComponent<CanvasGroup>(), 0, 0.5f).delay = 0.2f;
+
+        Destroy(canvasList[0]);
+        canvasList.Remove(canvasList[0]);
     }
 
     private void OnDestroy() {
@@ -102,6 +137,8 @@ public class LevelController : MonoBehaviour
     
     private void InputPress(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(INPUT_PRESS, false);
+    
+        if(inputPress) EnableAnim();
         StateHandler();
         PlayParticle();
     }
@@ -114,8 +151,9 @@ public class LevelController : MonoBehaviour
     private void StateHandler() {
         if(meterValue >= 100) {
             //Pause Func
-            Broadcaster.Instance.AddTimerState(GameTimeManager.PAUSE_TIMER, 
-                                                EventNames.Scene1.PAUSE_TIMER, TimerState.Paused);
+            GameTimeManager.Instance.timerState = TimerState.Paused;
+            // Broadcaster.Instance.AddTimerState(GameTimeManager.PAUSE_TIMER, 
+            //                                     EventNames.Scene1.PAUSE_TIMER, TimerState.Paused);
 
             //Init Level as Unplayable
             levelState = LevelState.Unplayable;
@@ -177,7 +215,8 @@ public class LevelController : MonoBehaviour
         SceneController.Instance.LoadScene();
 
         //Resume Func
-        Broadcaster.Instance.AddTimerState(GameTimeManager.PAUSE_TIMER, 
-                                            EventNames.Scene1.PAUSE_TIMER, TimerState.Playing);
+        GameTimeManager.Instance.timerState = TimerState.Playing;
+        // Broadcaster.Instance.AddTimerState(GameTimeManager.PAUSE_TIMER, 
+        //                                     EventNames.Scene1.PAUSE_TIMER, TimerState.Playing);
     }
 }

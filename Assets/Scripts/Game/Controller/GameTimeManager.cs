@@ -33,9 +33,9 @@ public class GameTimeManager : MonoBehaviour
     private void Awake() {
         if(Instance == null) {
             Instance = this;
-            DontDestroyOnLoad(this);
+            DontDestroyOnLoad(gameObject);
         }
-        else Destroy(this);
+        else Destroy(gameObject);
     }
 
     private void Start() {
@@ -69,9 +69,6 @@ public class GameTimeManager : MonoBehaviour
     private void Update() {
         Score = PlayerData.Score;
 
-        //Debug
-        Debug.Log((int)PlayerData.Timer);
-
         if(timer > 0 && timerState == TimerState.Playing) {
             timer -= Time.deltaTime;
             PlayerData.Timer = timer;
@@ -92,5 +89,6 @@ public class GameTimeManager : MonoBehaviour
 
     private void DetectTimer(Parameters parameters) {
         timerState = parameters.GetTimerState(PAUSE_TIMER, TimerState.Playing);
+        //Debug.Log(timerState);
     }
 }
