@@ -81,7 +81,7 @@ PlayerSettings:
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
   runInBackground: 0
-  captureSingleScreen: 0
+  captureSingleScreen: 1
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
   Force IOS Speakers When Recording: 0
@@ -141,9 +141,6 @@ PlayerSettings:
   preloadedAssets:
   - {fileID: -944628639613478452, guid: 53b47d67f28c16b4583dc0faf584b69c, type: 3}
   - {fileID: 11400000, guid: 1b560f654d661ab4b908d9b1547718d8, type: 2}
-  - {fileID: 11500000, guid: 8a7f83622c489d24eb87fba6da3fc0ed, type: 3}
-  - {fileID: 11500000, guid: d1ddf71f1d8e4e844923ee3dd2c4d79c, type: 3}
-  - {fileID: 11500000, guid: 30f5fecb93998074eb5c0da5957dba66, type: 3}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -186,7 +183,7 @@ PlayerSettings:
   ForceSDCardPermission: 0
   CreateWallpaper: 0
   androidSplitApplicationBinary: 0
-  keepLoadedShadersAlive: 0
+  keepLoadedShadersAlive: 1
   StripUnusedMeshComponents: 1
   strictShaderVariantMatching: 0
   VertexChannelCompressionMask: 4054
@@ -523,7 +520,7 @@ PlayerSettings:
   - m_BuildTarget: Standalone
     m_ChunkSizeInMB: 32
     m_MaxChunks: 2
-    m_OverrideDefaultSettings: 1
+    m_OverrideDefaultSettings: 0
   m_BuildTargetGraphicsJobs: []
   m_BuildTargetGraphicsJobMode: []
   m_BuildTargetGraphicsAPIs:
@@ -534,8 +531,8 @@ PlayerSettings:
     m_APIs: 150000000b000000
     m_Automatic: 0
   m_BuildTargetVRSettings: []
-  m_DefaultShaderChunkSizeInMB: 32
-  m_DefaultShaderChunkCount: 2
+  m_DefaultShaderChunkSizeInMB: 16
+  m_DefaultShaderChunkCount: 0
   openGLRequireES31: 0
   openGLRequireES31AEP: 0
   openGLRequireES32: 0

@@ -153,6 +153,7 @@ public class LevelController : MonoBehaviour
         else {
             this.inputUI.SetActive(false);
             DestroyInputUI();
+            
         }
     }
 
@@ -207,6 +208,15 @@ public class LevelController : MonoBehaviour
 
             //Pause Timer
             GameTimeManager.Instance.timerState = TimerState.Paused;
+            MusicController.Instance.gameState = GameState.End;
+            
+            EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
+
+            ground.Stop();
+
+            // Disable SFX
+            Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, 
+                                                EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
 
             HideMeter();
             EnablePauseCamera();

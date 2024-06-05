@@ -14,7 +14,7 @@ public class MusicController : MonoBehaviour
 
     public AudioClip Theme1;
 
-    private GameState gameState;
+    public GameState gameState = GameState.Play;
 
     private void Awake() {
         if(Instance == null) {
@@ -35,14 +35,13 @@ public class MusicController : MonoBehaviour
         audioSource.Play();
     }
 
-    private void FixedUpdate() {
+    private void Update() {
         CheckState();
     }
 
     private void CheckState() {
-        gameState = GameTimeManager.Instance.gameState;
-
         if(gameState == GameState.End) {
+            Debug.Log("Stopping Music");
             audioSource.Stop();
         }
     }
