@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using TMPro;
-using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour
@@ -50,9 +49,12 @@ public class LevelController : MonoBehaviour
     [SerializeField] public LevelState levelState = LevelState.Playable;
     [SerializeField] public VFXState vfxState = VFXState.Paused;
 
-    [Header("View")]
-    [SerializeReference] public GameObject gameCamera;
-    [SerializeReference] public GameObject pauseCamera;
+    [Header("PostProcess")]
+    [SerializeField] public GameObject pauseProfile;
+
+
+    // [Header("View")]
+    // [SerializeReference] public PostProcessVolume gameCamera;
 
     private void Start() {
         //Load Initial Level / Level One
@@ -96,11 +98,9 @@ public class LevelController : MonoBehaviour
     }
 
     private void LoadGameViews() {
-        //Views
-        gameCamera = transform.Find("View/Game").gameObject;
-        pauseCamera = transform.Find("View/Paused").gameObject;
-        gameCamera.SetActive(true);
-        pauseCamera.SetActive(false);
+        //PostProcess
+        pauseProfile = transform.Find("View/Game/PauseProfile").gameObject;
+        pauseProfile.SetActive(false);
     }
 
     private void LoadLevelOne() {
@@ -261,9 +261,8 @@ public class LevelController : MonoBehaviour
     }
 
     private void EnablePauseCamera() {
-        //Views
-        gameCamera.SetActive(false);
-        pauseCamera.SetActive(true);
+        //PostProcess
+        pauseProfile.SetActive(true);
 
         //HUD
         playHUD.SetActive(false);
