@@ -74,6 +74,7 @@ public class GameTimeManager : MonoBehaviour
             PlayerData.Timer = timer;
             if(timer <= 0) {
                 gameState = GameState.End;
+                Time.timeScale = 0;
             }
         }
     }
@@ -89,6 +90,5 @@ public class GameTimeManager : MonoBehaviour
 
     private void DetectTimer(Parameters parameters) {
         timerState = parameters.GetTimerState(PAUSE_TIMER, TimerState.Playing);
-        //Debug.Log(timerState);
     }
 }

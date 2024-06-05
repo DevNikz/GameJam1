@@ -7,8 +7,12 @@ public class TimerController : MonoBehaviour
 
     [SerializeField] public float timer;
 
+    private void Reset() {
+        timerObject = transform.Find("TimerText").GetComponent<TextMeshProUGUI>();
+    }
+
     private void Start() {
-        timerObject = this.gameObject.GetComponent<TextMeshProUGUI>();
+        timerObject = transform.Find("TimerText").GetComponent<TextMeshProUGUI>();
     }
 
     private void Update() {
@@ -27,7 +31,7 @@ public class TimerController : MonoBehaviour
         }
 
         else {
-            if((int) b > 9) timerObject.text = "00:0" + (int)a + ":0" + (int)b;
+            if((int) b > 9) timerObject.text = "00:0" + (int)a + ":" + (int)b;
             else if((int)b <= 9) timerObject.text = "00:0" + (int)a + ":0" + (int)b;
             else timerObject.text = "00:00:00";
         }

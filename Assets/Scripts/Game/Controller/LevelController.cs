@@ -1,18 +1,26 @@
+using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
+using TMPro;
 using Unity.Mathematics;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour
 {
-    public static LevelController Instance;
 
     [Header("Object")]
     [SerializeField] public GameObject Daikon;
 
     [Header("UI")]
-    [SerializeField] public GameObject meterUI;
+    [SerializeReference] public GameObject gameUI;
+    [SerializeField] public GameObject inputUI;
+    [SerializeField] public TextMeshProUGUI inputText;
+    [SerializeField] public GameObject playHUD;
+    [SerializeField] public GameObject pauseHUD;
+    [SerializeField] public GameObject pauseUI;
 
     [Header("Score")]
     [SerializeField] public GameObject canvasObject;
@@ -23,23 +31,41 @@ public class LevelController : MonoBehaviour
     [SerializeField] public ParticleSystem pop;
 
     [Header("Input")]
-
     [SerializeField] public bool inputPress;
     [Range(0, 100)]
     [SerializeField] public int meterValue;
+    [SerializeReference] public GameObject meterUI;
+
+    [Header("Input Animation")]
+    [SerializeField] Color startColor = new Color(1,1,1,1);
+    [SerializeField] Color endColor = new Color(1,1,1,0);
+    [Range(0,10)]
+    [SerializeField] public float speed = 2f;
 
     public const string INPUT_PRESS = "INPUT_PRESS";
 
-    [Header("Settings")]
+    [Header("States")]
     [SerializeField] public StartState startState = StartState.Yes;
     [SerializeField] public GameState gameState = GameState.Play; 
     [SerializeField] public LevelState levelState = LevelState.Playable;
     [SerializeField] public VFXState vfxState = VFXState.Paused;
 
+    [Header("View")]
+    [SerializeReference] public GameObject gameCamera;
+    [SerializeReference] public GameObject pauseCamera;
+
     private void Start() {
-        if(SceneManager.GetActiveScene().buildIndex == 0) LoadLevelOne();
+        //Load Initial Level / Level One
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) LoadLevelOne();
+
+        //Load Game UI
+        LoadGameUI();
+
+        //Load Game Views
+        LoadGameViews();
+
+        //Detect Current Run
         DetectRun();
-        meterValue = 0;
     }
 
     private void FixedUpdate() {
@@ -48,6 +74,33 @@ public class LevelController : MonoBehaviour
 
         //Update VFX
         Broadcaster.Instance.AddVFXState(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, vfxState);
+    }
+
+    private void LoadGameUI() {
+        //UI
+        gameUI = transform.Find("GAME UI").gameObject;
+        meterUI = transform.Find("METER UI").gameObject;
+        pauseUI = transform.Find("GAME UI/Pause").gameObject;
+
+        //Overlay
+        playHUD = transform.Find("GAME UI/PlayHUD").gameObject;
+        pauseHUD = transform.Find("GAME UI/PauseHUD").gameObject;
+
+        //Set Overlay
+        playHUD.SetActive(true);
+        pauseHUD.SetActive(false);
+
+        //Set Elements
+        meterUI.SetActive(true);
+        pauseUI.SetActive(false);
+    }
+
+    private void LoadGameViews() {
+        //Views
+        gameCamera = transform.Find("View/Game").gameObject;
+        pauseCamera = transform.Find("View/Paused").gameObject;
+        gameCamera.SetActive(true);
+        pauseCamera.SetActive(false);
     }
 
     private void LoadLevelOne() {
@@ -75,17 +128,16 @@ public class LevelController : MonoBehaviour
         pop.Stop();
 
         //Input UI
-        meterUI = transform.Find("INPUT UI").gameObject;
+        inputUI = transform.Find("INPUT UI").gameObject;
+        inputText = inputUI.transform.Find("Input").GetComponent<TextMeshProUGUI>();
 
         //Score
         canvasObject = transform.Find("ANIMATE UI").gameObject;
         canvasObject.GetComponent<CanvasGroup>().alpha = 0;
 
         //AddObservers
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun); //Init Anywhere
-        
-        //First Level
-        if(SceneManager.GetActiveScene().buildIndex == 0) EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
+        if(SceneManager.GetActiveScene().buildIndex == 0) EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun); //Initial Level / Tutorial
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
     }
 
     private void OnDestroy() {
@@ -94,23 +146,29 @@ public class LevelController : MonoBehaviour
 
     private void DetectRun() {
         startState = GameTimeManager.Instance.startState;
-        gameState = GameTimeManager.Instance.gameState;
 
-        if(startState == StartState.Yes) this.meterUI.SetActive(true);
-        else this.meterUI.SetActive(false);
-
-        if(gameState == GameState.End) Debug.Log("Game Ended");
+        if(startState == StartState.Yes) {
+            this.inputUI.SetActive(true);
+        }
+        else {
+            this.inputUI.SetActive(false);
+            DestroyInputUI();
+        }
     }
 
     private void FirstRun(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(INPUT_PRESS, false);
         if(startState == StartState.Yes) {
+            BlinkAnim();
             if(inputPress) {
                 //Set State to no
                 startState = StartState.No;
 
                 //Disable UI then play Particle
-                this.meterUI.SetActive(false);
+                this.inputUI.SetActive(false);
+                DestroyInputUI();
+
+                //Play SFX
                 this.pop.Play();
 
                 //Change First Run to false
@@ -139,7 +197,28 @@ public class LevelController : MonoBehaviour
 
     //State Handler
     private void StateHandler() {
+        gameState = GameTimeManager.Instance.gameState;
+        if(gameState == GameState.Play) {
+            PlayGame();
+        }
+        else {
+            Time.timeScale = 0;
+            levelState = LevelState.Unplayable;
+
+            //Pause Timer
+            GameTimeManager.Instance.timerState = TimerState.Paused;
+
+            HideMeter();
+            EnablePauseCamera();
+        }
+    }
+
+    private void PlayGame() {
         if(meterValue >= 100) {
+            //GAME PAUSED
+            HideMeter();
+            EnablePauseCamera();
+
             //Pause Func
             GameTimeManager.Instance.timerState = TimerState.Paused;
 
@@ -169,11 +248,29 @@ public class LevelController : MonoBehaviour
             //Update Object
             if(meterValue == 25) UpdateDaikon(-1f);
             else if(meterValue == 50) UpdateDaikon(-0.75f);
-            else if(meterValue == 75) UpdateDaikon(-5f);
+            else if(meterValue == 75) UpdateDaikon(-0.5f);
 
             //Update Meter
             meterValue += 5;
         }
+    }
+
+    //HideStuffs
+    private void HideMeter() {
+        meterUI.SetActive(false);
+    }
+
+    private void EnablePauseCamera() {
+        //Views
+        gameCamera.SetActive(false);
+        pauseCamera.SetActive(true);
+
+        //HUD
+        playHUD.SetActive(false);
+        pauseHUD.SetActive(true);
+
+        //Elements
+        pauseUI.SetActive(true);
     }
 
     //Daikon Controller
@@ -210,7 +307,6 @@ public class LevelController : MonoBehaviour
         GameTimeManager.Instance.timerState = TimerState.Playing;
     }
 
-
     //Animation Stuffs
     //Score Animation
     private void EnableAnim() {
@@ -229,5 +325,13 @@ public class LevelController : MonoBehaviour
 
         Destroy(canvasList[0]);
         canvasList.Remove(canvasList[0]);
+    }
+
+    private void BlinkAnim() {
+        inputText.color = Color.Lerp(startColor, endColor, Mathf.PingPong(Time.time * speed, 1));
+    }
+
+    private void DestroyInputUI() {
+        Destroy(inputUI);
     }
 }

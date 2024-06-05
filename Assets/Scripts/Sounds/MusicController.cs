@@ -14,6 +14,8 @@ public class MusicController : MonoBehaviour
 
     public AudioClip Theme1;
 
+    private GameState gameState;
+
     private void Awake() {
         if(Instance == null) {
             Instance = this;
@@ -31,6 +33,18 @@ public class MusicController : MonoBehaviour
         audioSource.clip = Theme1;
         audioSource.loop = true;
         audioSource.Play();
+    }
+
+    private void FixedUpdate() {
+        CheckState();
+    }
+
+    private void CheckState() {
+        gameState = GameTimeManager.Instance.gameState;
+
+        if(gameState == GameState.End) {
+            audioSource.Stop();
+        }
     }
 
 }
