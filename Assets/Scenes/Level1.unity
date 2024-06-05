@@ -5116,7 +5116,7 @@ GameObject:
   - component: {fileID: 149260735}
   - component: {fileID: 149260738}
   m_Layer: 5
-  m_Name: HUD
+  m_Name: METER UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5135,7 +5135,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1702593134}
-  m_Father: {fileID: 624552530}
+  m_Father: {fileID: 4598154422593032872}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -5928,38 +5928,6 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!1 &624552529
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 624552530}
-  m_Layer: 0
-  m_Name: LEVEL UI
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &624552530
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 624552529}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 10}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 149260734}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &683289733
 GameObject:
   m_ObjectHideFlags: 0
@@ -11629,7 +11597,6 @@ Transform:
   m_Children:
   - {fileID: 312586547}
   - {fileID: 737162956}
-  - {fileID: 2113984046}
   - {fileID: 1228925321}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -12890,7 +12857,7 @@ GameObject:
   - component: {fileID: 1702593136}
   - component: {fileID: 1702593135}
   m_Layer: 5
-  m_Name: 'Container [Meter]'
+  m_Name: Container
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -18006,6 +17973,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 2113984046}
   - {fileID: 1430893222}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -18411,13 +18379,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2113984045}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 76841432}
-  m_Father: {fileID: 1197411425}
+  m_Father: {fileID: 1840462196}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2120906883
 GameObject:
@@ -18616,6 +18584,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 149260734}
   - {fileID: 298837716}
   - {fileID: 2056335336}
   - {fileID: 1912565076}
@@ -18653,7 +18622,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Daikon: {fileID: 0}
-  UI: {fileID: 0}
+  meterUI: {fileID: 0}
   canvasObject: {fileID: 0}
   canvasList: []
   ground: {fileID: 0}
@@ -18724,5 +18693,4 @@ SceneRoots:
   - {fileID: 4598154422593032872}
   - {fileID: 1197411425}
   - {fileID: 1840462196}
-  - {fileID: 624552530}
   - {fileID: 1120418758}

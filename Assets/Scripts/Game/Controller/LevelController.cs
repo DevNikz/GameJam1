@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -11,7 +12,7 @@ public class LevelController : MonoBehaviour
     [SerializeField] public GameObject Daikon;
 
     [Header("UI")]
-    [SerializeField] public GameObject UI;
+    [SerializeField] public GameObject meterUI;
 
     [Header("Score")]
     [SerializeField] public GameObject canvasObject;
@@ -24,6 +25,7 @@ public class LevelController : MonoBehaviour
     [Header("Input")]
 
     [SerializeField] public bool inputPress;
+    [Range(0, 100)]
     [SerializeField] public int meterValue;
 
     public const string INPUT_PRESS = "INPUT_PRESS";
@@ -37,6 +39,15 @@ public class LevelController : MonoBehaviour
     private void Start() {
         if(SceneManager.GetActiveScene().buildIndex == 0) LoadLevelOne();
         DetectRun();
+        meterValue = 0;
+    }
+
+    private void FixedUpdate() {
+        //Update Meter Dynamically
+        Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER, EventNames.Scene1.INCREASE_METER, meterValue);
+
+        //Update VFX
+        Broadcaster.Instance.AddVFXState(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, vfxState);
     }
 
     private void LoadLevelOne() {
@@ -51,7 +62,6 @@ public class LevelController : MonoBehaviour
         //Set Daikon Property
         Daikon.SetActive(true);
         Rigidbody rb = transform.Find("Daikon").GetComponentInChildren<Rigidbody>();
-        //Rigidbody rb = Daikon.GetComponent<Rigidbody>();
         rb.useGravity = false;
         Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -1.25f, Daikon.transform.localPosition.z);
 
@@ -64,17 +74,18 @@ public class LevelController : MonoBehaviour
         pop.Clear();
         pop.Stop();
 
-        //Init UI
         //Input UI
-        UI = transform.Find("INPUT UI").gameObject;
+        meterUI = transform.Find("INPUT UI").gameObject;
 
         //Score
         canvasObject = transform.Find("ANIMATE UI").gameObject;
         canvasObject.GetComponent<CanvasGroup>().alpha = 0;
 
         //AddObservers
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun);
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun); //Init Anywhere
+        
+        //First Level
+        if(SceneManager.GetActiveScene().buildIndex == 0) EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
     }
 
     private void OnDestroy() {
@@ -85,8 +96,8 @@ public class LevelController : MonoBehaviour
         startState = GameTimeManager.Instance.startState;
         gameState = GameTimeManager.Instance.gameState;
 
-        if(startState == StartState.Yes) this.UI.SetActive(true);
-        else this.UI.SetActive(false);
+        if(startState == StartState.Yes) this.meterUI.SetActive(true);
+        else this.meterUI.SetActive(false);
 
         if(gameState == GameState.End) Debug.Log("Game Ended");
     }
@@ -99,7 +110,7 @@ public class LevelController : MonoBehaviour
                 startState = StartState.No;
 
                 //Disable UI then play Particle
-                this.UI.SetActive(false);
+                this.meterUI.SetActive(false);
                 this.pop.Play();
 
                 //Change First Run to false
@@ -119,11 +130,14 @@ public class LevelController : MonoBehaviour
         PlayParticle();
     }
 
+    //Particle Player
     private void PlayParticle() {
         if(inputPress) ground.Play();
         else ground.Stop();
     }
 
+
+    //State Handler
     private void StateHandler() {
         if(meterValue >= 100) {
             //Pause Func
@@ -148,20 +162,23 @@ public class LevelController : MonoBehaviour
 
             PlayerData.Score += 10;
 
-            //Update VFX
+            //Enable Camera Shake when Input
             vfxState = VFXState.Playing;
-            Broadcaster.Instance.AddVFXState(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, vfxState);
+            
 
             //Update Object
-            if(meterValue == 25) Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -1f, Daikon.transform.localPosition.z);
-            else if(meterValue == 50) Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -0.75f, Daikon.transform.localPosition.z);
-            else if(meterValue == 75) Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -0.5f, Daikon.transform.localPosition.z);
+            if(meterValue == 25) UpdateDaikon(-1f);
+            else if(meterValue == 50) UpdateDaikon(-0.75f);
+            else if(meterValue == 75) UpdateDaikon(-5f);
 
             //Update Meter
             meterValue += 5;
-
-            Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER, EventNames.Scene1.INCREASE_METER, meterValue);
         }
+    }
+
+    //Daikon Controller
+    private void UpdateDaikon(float value) {
+        Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, value, Daikon.transform.localPosition.z);
     }
 
     private void DelayedForce() {
@@ -183,6 +200,7 @@ public class LevelController : MonoBehaviour
         rb.rotation = rotationSpeed;
     }
 
+    //Scene Changer
     private void ChangeScene() {
 
         //ChangeScene
