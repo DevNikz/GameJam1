@@ -539,6 +539,8 @@ MonoBehaviour:
   - {fileID: 6311909532150423893}
   - {fileID: 7233781624028565746}
   - {fileID: -858587043382481226}
+  - {fileID: 3002418789952164404}
+  - {fileID: 565898474226786811}
 --- !u!114 &382708481726701635
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -559,6 +561,43 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   balance:
+    m_OverrideState: 1
+    m_Value: 0
+--- !u!114 &565898474226786811
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc659104722eeeb489b1d83990813e53, type: 3}
+  m_Name: DitherVol
+  m_EditorClassIdentifier: 
+  active: 1
+  m_Impact:
+    m_OverrideState: 1
+    m_Value: 0
+  m_Power:
+    m_OverrideState: 1
+    m_Value: 0
+  m_Scale:
+    m_OverrideState: 1
+    m_Value: 1
+  m_Pixelate:
+    m_OverrideState: 1
+    m_Value: 1
+  m_Fps:
+    m_OverrideState: 1
+    m_Value: 0
+  m_Palette:
+    m_OverrideState: 1
+    m_Value: {fileID: 0}
+  m_Pattern:
+    m_OverrideState: 1
+    m_Value: {fileID: 0}
+  m_Mode:
     m_OverrideState: 1
     m_Value: 0
 --- !u!114 &1545951481580412078
@@ -630,6 +669,38 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 1
   bladeRotation:
+    m_OverrideState: 1
+    m_Value: 0
+--- !u!114 &3002418789952164404
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c4ad92b2d4441c34c8fc9eb5b2e51fd2, type: 3}
+  m_Name: PixelationVol
+  m_EditorClassIdentifier: 
+  active: 1
+  m_Scale:
+    m_OverrideState: 1
+    m_Value: 1
+  m_Grid:
+    m_OverrideState: 1
+    m_Value: 1
+  m_Roundness:
+    m_OverrideState: 1
+    m_Value: 0.5
+  m_Color:
+    m_OverrideState: 1
+    m_Value: {r: 0, g: 0, b: 0, a: 0}
+    hdr: 0
+  m_Palette:
+    m_OverrideState: 1
+    m_Value: {fileID: 0}
+  m_Impact:
     m_OverrideState: 1
     m_Value: 0
 --- !u!114 &3979140858143258193

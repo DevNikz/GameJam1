@@ -1,15 +1,21 @@
 using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour
 {
+    public static LevelController Instance;
 
     [Header("Object")]
     [SerializeField] public GameObject Daikon;
 
     [Header("UI")]
     [SerializeField] public GameObject UI;
+
+    [Header("Score")]
+    [SerializeField] public GameObject canvasObject;
+    [SerializeReference] public List<GameObject> canvasList;
 
     [Header("Particle")]
     [SerializeField] public ParticleSystem ground;
@@ -22,79 +28,57 @@ public class LevelController : MonoBehaviour
 
     public const string INPUT_PRESS = "INPUT_PRESS";
 
-    private Parameters parameters;
-
     [Header("Settings")]
     [SerializeField] public StartState startState = StartState.Yes;
     [SerializeField] public GameState gameState = GameState.Play; 
     [SerializeField] public LevelState levelState = LevelState.Playable;
     [SerializeField] public VFXState vfxState = VFXState.Paused;
 
-    [Header("UI Settings")]
-    [SerializeField] public GameObject canvasObject;
-    [SerializeField] public GameObject textObject;
-    [SerializeReference] public List<GameObject> canvasList;
-
-    // [SerializeField] public RectTransform box;
-    // [SerializeField] public CanvasGroup scoreAlpha;
-
-    private Vector3 localPos;
-
     private void Start() {
-        InitStart();
-        
-        
-        // scoreAlpha.alpha = 0;
-    }
-
-    private void EnableAnim() {
-        GameObject tempCanvas = Instantiate(canvasObject, canvasObject.transform.position, Quaternion.identity);
-        canvasList.Add(tempCanvas);
-
-        tempCanvas.GetComponent<CanvasGroup>().alpha = 0;
-        
-        LeanTween.alphaCanvas(tempCanvas.GetComponent<CanvasGroup>(), 1, 0.35f);
-        LeanTween.moveLocalY(tempCanvas.GetComponentInChildren<RectTransform>().gameObject, 2f, 0.25f).setOnComplete(FadeOut);
-    }
-
-    private void FadeOut() {
-        canvasList[0].GetComponent<CanvasGroup>().alpha = 0;
-        LeanTween.alphaCanvas(canvasList[0].GetComponent<CanvasGroup>(), 0, 0.5f).delay = 0.2f;
-
-        Destroy(canvasList[0]);
-        canvasList.Remove(canvasList[0]);
-    }
-
-    private void OnDestroy() {
-        RemoveObservers();
-    }
-
-    private void InitStart() {
-        InitObjects();
-        InitVars();
-        InitDaikon();
+        if(SceneManager.GetActiveScene().buildIndex == 0) LoadLevelOne();
         DetectRun();
-        AddObservers();
     }
 
-    private void InitObjects() {
-        ground.Stop();
-        pop.Clear();
-        pop.Stop();
-    } 
-
-    private void InitVars() {
+    private void LoadLevelOne() {
+        //Init Vars
         gameState = GameState.Play;
         levelState = LevelState.Playable;
         meterValue = 0;
+
+        //Init Daikon
+        Daikon = transform.Find("Daikon").gameObject;
+
+        //Set Daikon Property
+        Daikon.SetActive(true);
+        Rigidbody rb = transform.Find("Daikon").GetComponentInChildren<Rigidbody>();
+        //Rigidbody rb = Daikon.GetComponent<Rigidbody>();
+        rb.useGravity = false;
+        Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -1.25f, Daikon.transform.localPosition.z);
+
+        //Init VFX
+        ground = this.transform.Find("GroundDust").GetComponentInChildren<ParticleSystem>();
+        pop = this.transform.Find("Pop Particle").GetComponentInChildren<ParticleSystem>();
+
+        //Particle Properties
+        ground.Stop();
+        pop.Clear();
+        pop.Stop();
+
+        //Init UI
+        //Input UI
+        UI = transform.Find("INPUT UI").gameObject;
+
+        //Score
+        canvasObject = transform.Find("ANIMATE UI").gameObject;
         canvasObject.GetComponent<CanvasGroup>().alpha = 0;
+
+        //AddObservers
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun);
     }
 
-    private void InitDaikon() {
-        Daikon.SetActive(true);
-        Rigidbody rb = Daikon.GetComponent<Rigidbody>();
-        rb.useGravity = false;
-        Daikon.transform.localPosition = new Vector3(0f, -2.25f, 1.75f);
+    private void OnDestroy() {
+        EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
     }
 
     private void DetectRun() {
@@ -105,15 +89,6 @@ public class LevelController : MonoBehaviour
         else this.UI.SetActive(false);
 
         if(gameState == GameState.End) Debug.Log("Game Ended");
-    }
-
-    private void AddObservers() {
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun);
-    }
-
-    private void RemoveObservers() {
-        EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
     }
 
     private void FirstRun(Parameters parameters) {
@@ -136,7 +111,10 @@ public class LevelController : MonoBehaviour
     private void InputPress(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(INPUT_PRESS, false);
     
-        if(inputPress) EnableAnim();
+        if(inputPress) {
+            EnableAnim();
+        }
+
         StateHandler();
         PlayParticle();
     }
@@ -150,8 +128,6 @@ public class LevelController : MonoBehaviour
         if(meterValue >= 100) {
             //Pause Func
             GameTimeManager.Instance.timerState = TimerState.Paused;
-            // Broadcaster.Instance.AddTimerState(GameTimeManager.PAUSE_TIMER, 
-            //                                     EventNames.Scene1.PAUSE_TIMER, TimerState.Paused);
 
             //Init Level as Unplayable
             levelState = LevelState.Unplayable;
@@ -177,9 +153,9 @@ public class LevelController : MonoBehaviour
             Broadcaster.Instance.AddVFXState(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, vfxState);
 
             //Update Object
-            if(meterValue == 25) Daikon.transform.localPosition = new Vector3(0f, -2f, 1.75f);
-            else if(meterValue == 50) Daikon.transform.localPosition = new Vector3(0f, -1.75f, 1.75f);
-            else if(meterValue == 75) Daikon.transform.localPosition = new Vector3(0f, -1.5f, 1.75f);
+            if(meterValue == 25) Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -1f, Daikon.transform.localPosition.z);
+            else if(meterValue == 50) Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -0.75f, Daikon.transform.localPosition.z);
+            else if(meterValue == 75) Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -0.5f, Daikon.transform.localPosition.z);
 
             //Update Meter
             meterValue += 5;
@@ -214,7 +190,26 @@ public class LevelController : MonoBehaviour
 
         //Resume Func
         GameTimeManager.Instance.timerState = TimerState.Playing;
-        // Broadcaster.Instance.AddTimerState(GameTimeManager.PAUSE_TIMER, 
-        //                                     EventNames.Scene1.PAUSE_TIMER, TimerState.Playing);
+    }
+
+
+    //Animation Stuffs
+    //Score Animation
+    private void EnableAnim() {
+        GameObject tempCanvas = Instantiate(canvasObject, canvasObject.transform.position, Quaternion.identity);
+        canvasList.Add(tempCanvas);
+
+        tempCanvas.GetComponent<CanvasGroup>().alpha = 0;
+        
+        LeanTween.alphaCanvas(tempCanvas.GetComponent<CanvasGroup>(), 1, 0.35f);
+        LeanTween.moveLocalY(tempCanvas.GetComponentInChildren<RectTransform>().gameObject, 2f, 0.25f).setOnComplete(FadeOut);
+    }
+
+    private void FadeOut() {
+        canvasList[0].GetComponent<CanvasGroup>().alpha = 0;
+        LeanTween.alphaCanvas(canvasList[0].GetComponent<CanvasGroup>(), 0, 0.5f).delay = 0.2f;
+
+        Destroy(canvasList[0]);
+        canvasList.Remove(canvasList[0]);
     }
 }
