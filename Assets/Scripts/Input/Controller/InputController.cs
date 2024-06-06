@@ -28,7 +28,7 @@ public class InputController : MonoBehaviour
 
     private void UpdateInputs() {
         //Scene1
-        if(SceneManager.GetActiveScene().buildIndex == 0) loadLevelOne();
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) loadLevelOne();
     }
 
     private void loadLevelOne() {

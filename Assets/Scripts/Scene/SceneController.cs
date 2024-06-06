@@ -17,7 +17,17 @@ public class SceneController : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void LoadScene() {
-        if(PlayerData.currentScene == 0) SceneManager.LoadScene(currentScene);
+    public void ChangeSceneManager() {
+        if(PlayerData.currentScene == 0) { 
+            LoadScene1();
+        }
+        else if(PlayerData.currentScene == 1) {
+            LoadScene1();
+        }
+    }
+
+    private void LoadScene1() {
+        currentScene = 1;
+        SceneManager.LoadScene(currentScene);
     }
 }

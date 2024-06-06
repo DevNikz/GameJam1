@@ -24,11 +24,11 @@ public class SFXController : MonoBehaviour
         audioSource.volume = Volume;
         audioSource = this.gameObject.GetComponent<AudioSource>();
 
-        if(SceneManager.GetActiveScene().buildIndex == 0) loadLevelOne();
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) loadLevelOne();
     }
 
     private void OnDestroy() {
-        if(SceneManager.GetActiveScene().buildIndex == 0) destroyLevelOne();
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) destroyLevelOne();
     }
 
     private void loadLevelOne() {

@@ -43,6 +43,10 @@ public class LevelController : MonoBehaviour
     //PostProcess
     [Header("PostProcess")]
     [SerializeField] public GameObject pauseProfile; //For Pause and End Screen
+    [SerializeField] public GameObject horrorProfile; //Array of horrorProfile
+    [SerializeField] public GameObject horrorPauseProfile;
+
+    private bool enableHorror = false;
 
     //Score
     [Header("Score")]
@@ -65,14 +69,14 @@ public class LevelController : MonoBehaviour
     public const string INPUT_PRESS = "INPUT_PRESS";
 
     private void Start() {
-        //Load Initial Level / Level One
-        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) LoadLevelOne();
-
         //Load Game UI
         LoadGameUI();
 
         //Load Game Views
         LoadGameViews();
+
+        //Load Initial Level / Level One
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) LoadLevelOne();
 
         //Detect Current Run
         DetectRun();
@@ -113,9 +117,18 @@ public class LevelController : MonoBehaviour
     }
 
     private void LoadGameViews() {
+        //Vars
+        enableHorror = false;
+
         //PostProcess
         pauseProfile = transform.Find("View/Game/PauseProfile").gameObject;
         pauseProfile.SetActive(false);
+        
+        horrorProfile = transform.Find("View/Game/DarkProfile").gameObject;
+        horrorProfile.SetActive(false);
+
+        horrorPauseProfile = transform.Find("View/Game/PauseProfile_Dark").gameObject;
+        horrorPauseProfile.SetActive(false);
     }
 
     private void LoadLevelOne() {
@@ -133,11 +146,12 @@ public class LevelController : MonoBehaviour
         rb.useGravity = false;
         Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -1.25f, Daikon.transform.localPosition.z);
 
-        //Init VFX
+        //Init PostProcess
+        if(SceneManager.GetActiveScene().buildIndex == 1) InitPostProcess();
+
+        //Init Particle
         ground = this.transform.Find("GroundDust").GetComponentInChildren<ParticleSystem>();
         pop = this.transform.Find("Pop Particle").GetComponentInChildren<ParticleSystem>();
-
-        //Particle Properties
         ground.Stop();
         pop.Clear();
         pop.Stop();
@@ -151,8 +165,34 @@ public class LevelController : MonoBehaviour
         canvasObject.GetComponent<CanvasGroup>().alpha = 0;
 
         //AddObservers
-        if(SceneManager.GetActiveScene().buildIndex == 0) EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun); //Initial Level / Tutorial
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun); //Initial Level / Tutorial
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
+    }
+
+    private void InitPostProcess() {
+        float chancesFloat = UnityEngine.Random.Range(0f,1f);
+        ChangeProcess(chancesFloat, 1);
+    }
+
+    private void ChangeProcess(float chances, int sceneNum) {
+        switch(sceneNum) {
+            case 1:
+                if(chances <= 0.25) {
+                    enableHorror = true;
+                    //PostProcess
+                    pauseProfile.SetActive(false);
+                    horrorPauseProfile.SetActive(false);
+                    horrorProfile.SetActive(true);
+
+                    //HUD
+                    playHUD.SetActive(true);
+                    pauseHUD.SetActive(false);
+
+                    //Elements
+                    pauseText.SetActive(false);
+                }
+                break;
+        }
     }
 
     private void OnDestroy() {
@@ -210,7 +250,6 @@ public class LevelController : MonoBehaviour
         else ground.Stop();
     }
 
-
     //State Handler
     private void StateHandler() {
         gameState = GameTimeManager.Instance.gameState;
@@ -247,7 +286,7 @@ public class LevelController : MonoBehaviour
         if(meterValue >= 100) {
             //GAME PAUSED
             HideMeter();
-            EnablePauseCamera();
+            EnablePauseCamera_Variation();
 
             //Pause Func
             GameTimeManager.Instance.timerState = TimerState.Paused;
@@ -290,7 +329,7 @@ public class LevelController : MonoBehaviour
         meterUI.SetActive(false);
     }
 
-    private void EnablePauseCamera() {
+    private void EnableInitialPause() {
         //PostProcess
         pauseProfile.SetActive(true);
 
@@ -302,9 +341,39 @@ public class LevelController : MonoBehaviour
         pauseText.SetActive(true);
     }
 
+    private void EnablePauseCamera_Variation() {
+        Debug.Log(enableHorror);
+        if(enableHorror == true) {
+            pauseProfile.SetActive(false);
+            horrorPauseProfile.SetActive(true);
+            horrorProfile.SetActive(false);
+
+            playHUD.SetActive(false);
+            pauseHUD.SetActive(true);
+
+            pauseText.SetActive(true);
+        }
+
+        else {
+            //PostProcess
+            pauseProfile.SetActive(true);
+            horrorPauseProfile.SetActive(false);
+            horrorProfile.SetActive(false);
+
+            //HUD
+            playHUD.SetActive(false);
+            pauseHUD.SetActive(true);
+
+            //Elements
+            pauseText.SetActive(true);
+        }
+    }
+
     private void EnableEndCamera() {
         //PostProcess
         pauseProfile.SetActive(true);
+        horrorPauseProfile.SetActive(false);
+        horrorProfile.SetActive(false);
 
         //HUD
         playHUD.SetActive(false);
@@ -344,7 +413,7 @@ public class LevelController : MonoBehaviour
 
         //Change Next Scene
         PlayerData.currentScene = 0;
-        SceneController.Instance.LoadScene();
+        SceneController.Instance.ChangeSceneManager();
 
         //Resume Func
         GameTimeManager.Instance.timerState = TimerState.Playing;

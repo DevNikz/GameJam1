@@ -33,7 +33,7 @@ public class TimerController : MonoBehaviour
         else {
             if((int) b > 9) timerObject.text = "00:0" + (int)a + ":" + (int)b;
             else if((int)b <= 9) timerObject.text = "00:0" + (int)a + ":0" + (int)b;
-            else timerObject.text = "00:00:00";
+            else if((int)b <= 0) timerObject.text = "00:00:00";
         }
     }
 }
