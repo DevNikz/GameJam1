@@ -1,60 +1,68 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 
 public class LevelController : MonoBehaviour
 {
-
-    [Header("Object")]
-    [SerializeField] public GameObject Daikon;
-
-    [Header("UI")]
-    [SerializeReference] public GameObject gameUI;
-    [SerializeField] public GameObject inputUI;
-    [SerializeField] public TextMeshProUGUI inputText;
-    [SerializeField] public GameObject playHUD;
-    [SerializeField] public GameObject pauseHUD;
-    [SerializeField] public GameObject pauseUI;
-
-    [Header("Score")]
-    [SerializeField] public GameObject canvasObject;
-    [SerializeReference] public List<GameObject> canvasList;
-
-    [Header("Particle")]
-    [SerializeField] public ParticleSystem ground;
-    [SerializeField] public ParticleSystem pop;
-
-    [Header("Input")]
-    [SerializeField] public bool inputPress;
-    [Range(0, 100)]
-    [SerializeField] public int meterValue;
-    [SerializeReference] public GameObject meterUI;
-
-    [Header("Input Animation")]
-    [SerializeField] Color startColor = new Color(1,1,1,1);
-    [SerializeField] Color endColor = new Color(1,1,1,0);
-    [Range(0,10)]
-    [SerializeField] public float speed = 2f;
-
-    public const string INPUT_PRESS = "INPUT_PRESS";
-
+    //Game
     [Header("States")]
     [SerializeField] public StartState startState = StartState.Yes;
     [SerializeField] public GameState gameState = GameState.Play; 
     [SerializeField] public LevelState levelState = LevelState.Playable;
     [SerializeField] public VFXState vfxState = VFXState.Paused;
 
+    //Input
+    [Header("Input")]
+    [SerializeField] public bool inputPress;
+
+    //Scene 1 Specific
+    [Header("Scene 1")]
+    [Range(0, 100)]
+    [SerializeField] public int meterValue;
+    [SerializeReference] public GameObject meterUI;
+    [SerializeField] public GameObject Daikon;
+
+    //UI
+    [Header("INPUT UI")]
+    [SerializeField] public GameObject inputUI;
+    [SerializeField] public TextMeshProUGUI inputText;
+
+    [Header("PLAY UI")]
+    [SerializeField] public GameObject playHUD;
+
+    [Header("PAUSE UI")]
+    [SerializeField] public GameObject pauseHUD;
+    [SerializeField] public GameObject pauseText;
+
+    [Header("END UI")]
+    [SerializeField] public GameObject endHUD; //EndHUD
+    [SerializeField] public GameObject endScreen; //EndScreen
+
+    //PostProcess
     [Header("PostProcess")]
-    [SerializeField] public GameObject pauseProfile;
+    [SerializeField] public GameObject pauseProfile; //For Pause and End Screen
 
+    //Score
+    [Header("Score")]
+    [SerializeField] public GameObject canvasObject;
+    [SerializeReference] public List<GameObject> canvasList;
 
-    // [Header("View")]
-    // [SerializeReference] public PostProcessVolume gameCamera;
+    //Effects
+    [Header("Particle")]
+    [SerializeField] public ParticleSystem ground;
+    [SerializeField] public ParticleSystem pop;
+
+    //Animation
+    [Header("Input Animation")]
+    [SerializeField] Color startColor = new Color(1,1,1,1);
+    [SerializeField] Color endColor = new Color(1,1,1,0);
+    [Range(0,10)]
+    [SerializeField] public float speed = 2f;
+
+    //EventBroadcaster
+    public const string INPUT_PRESS = "INPUT_PRESS";
 
     private void Start() {
         //Load Initial Level / Level One
@@ -80,21 +88,28 @@ public class LevelController : MonoBehaviour
 
     private void LoadGameUI() {
         //UI
-        gameUI = transform.Find("GAME UI").gameObject;
         meterUI = transform.Find("METER UI").gameObject;
-        pauseUI = transform.Find("GAME UI/Pause").gameObject;
+        pauseText = transform.Find("GAME UI/Pause").gameObject;
 
         //Overlay
         playHUD = transform.Find("GAME UI/PlayHUD").gameObject;
         pauseHUD = transform.Find("GAME UI/PauseHUD").gameObject;
+        endHUD = transform.Find("GAME UI/EndHUD").gameObject;
+
+        //Screen
+        endScreen = transform.Find("View/Game/EndScreen").gameObject;
 
         //Set Overlay
         playHUD.SetActive(true);
         pauseHUD.SetActive(false);
+        endHUD.SetActive(false);
+
+        //Set Screen
+        endScreen.SetActive(false);
 
         //Set Elements
         meterUI.SetActive(true);
-        pauseUI.SetActive(false);
+        pauseText.SetActive(false);
     }
 
     private void LoadGameViews() {
@@ -210,16 +225,21 @@ public class LevelController : MonoBehaviour
             GameTimeManager.Instance.timerState = TimerState.Paused;
             MusicController.Instance.gameState = GameState.End;
             
+            //Remove Observer
             EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
 
+            //Stop Ground vfx
             ground.Stop();
 
             // Disable SFX
             Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, 
                                                 EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
 
+            //Hide Meter
             HideMeter();
-            EnablePauseCamera();
+
+            //Enable Pause Camera
+            EnableEndCamera();
         }
     }
 
@@ -279,7 +299,20 @@ public class LevelController : MonoBehaviour
         pauseHUD.SetActive(true);
 
         //Elements
-        pauseUI.SetActive(true);
+        pauseText.SetActive(true);
+    }
+
+    private void EnableEndCamera() {
+        //PostProcess
+        pauseProfile.SetActive(true);
+
+        //HUD
+        playHUD.SetActive(false);
+        pauseHUD.SetActive(false);
+        endHUD.SetActive(true);
+
+        //Elements
+        endScreen.SetActive(true);
     }
 
     //Daikon Controller
@@ -309,7 +342,8 @@ public class LevelController : MonoBehaviour
     //Scene Changer
     private void ChangeScene() {
 
-        //ChangeScene
+        //Change Next Scene
+        PlayerData.currentScene = 0;
         SceneController.Instance.LoadScene();
 
         //Resume Func

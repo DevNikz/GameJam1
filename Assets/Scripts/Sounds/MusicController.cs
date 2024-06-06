@@ -12,8 +12,8 @@ public class MusicController : MonoBehaviour
 
     [SerializeField] public float Volume = 0.7f;
 
-    public AudioClip Theme1;
-
+    public AudioClip[] clips;
+    
     public GameState gameState = GameState.Play;
 
     private void Awake() {
@@ -27,11 +27,10 @@ public class MusicController : MonoBehaviour
 
     private void Start() {
         audioSource = this.gameObject.GetComponent<AudioSource>();
-
         audioSource.volume = Volume;
-
-        audioSource.clip = Theme1;
         audioSource.loop = true;
+
+        audioSource.clip = clips[0];
         audioSource.Play();
     }
 
@@ -41,8 +40,10 @@ public class MusicController : MonoBehaviour
 
     private void CheckState() {
         if(gameState == GameState.End) {
-            Debug.Log("Stopping Music");
-            audioSource.Stop();
+            // Debug.Log("Stopping Music");
+            audioSource.clip = clips[1];
+            audioSource.Play();
+            Destroy(this);
         }
     }
 

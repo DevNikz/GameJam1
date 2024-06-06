@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -14,7 +12,7 @@ public class InputController : MonoBehaviour
 
     //Set Reference to InputAction for Scene 1
     private InputAction _Scene1;
-    
+
     private void Start() {
         _playerInput = GetComponent<PlayerInput>();
         SetupInputActions();
@@ -35,6 +33,7 @@ public class InputController : MonoBehaviour
 
     private void loadLevelOne() {
         interactPress = _Scene1.WasPressedThisFrame();
+
         Broadcaster.Instance.AddBoolParam(LevelController.INPUT_PRESS, EventNames.KeyboardInput.INTERACT_PRESS, interactPress);
         Broadcaster.Instance.AddBoolParam(SFXController.PLAY_CLIP_S1, EventNames.KeyboardInput.INTERACT_PRESS, interactPress);
     }

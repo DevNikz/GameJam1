@@ -7,6 +7,8 @@ public class SceneController : MonoBehaviour
 {
     public static SceneController Instance;
 
+    private int currentScene = 0;
+
     private void Awake() {
         if(Instance == null) {
             Instance = this;
@@ -16,7 +18,6 @@ public class SceneController : MonoBehaviour
     }
 
     public void LoadScene() {
-        //Debug.Log(SceneManager.GetActiveScene().buildIndex);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        if(PlayerData.currentScene == 0) SceneManager.LoadScene(currentScene);
     }
 }
