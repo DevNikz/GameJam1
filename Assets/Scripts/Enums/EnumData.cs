@@ -31,3 +31,23 @@ public enum VFXState {
     Playing,
     Paused
 }
+
+public enum Direction_Hor {
+    Left,
+    Right
+}
+
+public enum Direction_Vert {
+    Up,
+    Down
+}
+
+public enum PlayerState {
+    Moving,
+    Idle
+}
+
+public enum InteractState {
+    None,
+    Interacted
+}

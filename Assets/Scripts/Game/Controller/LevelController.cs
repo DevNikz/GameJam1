@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class LevelController : MonoBehaviour
 {
@@ -15,58 +17,68 @@ public class LevelController : MonoBehaviour
 
     //Input
     [Header("Input")]
-    [SerializeField] public bool inputPress;
+    [SerializeField] public bool spacePress;
+    [SerializeField] public bool ePress;
 
     //Scene 1 Specific
     [Header("Scene 1")]
     [Range(0, 100)]
     [SerializeField] public int meterValue;
-    [SerializeReference] public GameObject meterUI;
-    [SerializeField] public GameObject Daikon;
+    private GameObject meterUI;
+    private GameObject Daikon;
+
+    //Scene 3 Specific
+    [Header("Scene 3")]
+    [SerializeField] public int counter;
+    [Range(0,100)]
+    [SerializeField] public int meterValue_Vert;
+    private Vector3 moveInput;
+    private GameObject player;
+    private Rigidbody rb;
+    private GameObject interactCollider;
+    private ParticleSystem playerDust;
+    private GameObject meterUI_Vert;
 
     //UI
-    [Header("INPUT UI")]
-    [SerializeField] public GameObject inputUI;
-    [SerializeField] public TextMeshProUGUI inputText;
+    private GameObject inputUI;
+    private TextMeshProUGUI inputText;
 
-    [Header("PLAY UI")]
-    [SerializeField] public GameObject playHUD;
+    //PlayHUD
+    private GameObject playHUD;
 
-    [Header("PAUSE UI")]
-    [SerializeField] public GameObject pauseHUD;
-    [SerializeField] public GameObject pauseText;
+    //PauseHUD
+    private GameObject pauseHUD;
+    private GameObject pauseText;
 
-    [Header("END UI")]
-    [SerializeField] public GameObject endHUD; //EndHUD
-    [SerializeField] public GameObject endScreen; //EndScreen
+    //EndHUD
+    private GameObject endHUD;
+    private GameObject endScreen;
 
     //PostProcess
-    [Header("PostProcess")]
-    [SerializeField] public GameObject pauseProfile; //For Pause and End Screen
-    [SerializeField] public GameObject horrorProfile; //Array of horrorProfile
-    [SerializeField] public GameObject horrorPauseProfile;
-
-    private bool enableHorror = false;
+    [Header("Filter")]
+    [SerializeField] private bool enableHorror = false;
+    private GameObject pauseProfile;
+    private GameObject horrorProfile;
+    private GameObject horrorPauseProfile;
 
     //Score
-    [Header("Score")]
-    [SerializeField] public GameObject canvasObject;
-    [SerializeReference] public List<GameObject> canvasList;
+    private GameObject canvasObject;
+    private List<GameObject> canvasList;
 
     //Effects
-    [Header("Particle")]
-    [SerializeField] public ParticleSystem ground;
-    [SerializeField] public ParticleSystem pop;
+    private ParticleSystem ground;
+    private ParticleSystem pop;
 
     //Animation
-    [Header("Input Animation")]
-    [SerializeField] Color startColor = new Color(1,1,1,1);
-    [SerializeField] Color endColor = new Color(1,1,1,0);
+    private Color startColor = new Color(1,1,1,1);
+    private Color endColor = new Color(1,1,1,0);
     [Range(0,10)]
-    [SerializeField] public float speed = 2f;
+    private float speed = 2f;
 
     //EventBroadcaster
     public const string INPUT_PRESS = "INPUT_PRESS";
+    public const string INPUT_E = "INPUT_E";
+    public const string KEY_MOVE = "KEY_MOVE";
 
     private void Start() {
         //Load Game UI
@@ -77,43 +89,65 @@ public class LevelController : MonoBehaviour
 
         //Load Initial Level / Level One
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) LoadLevelOne();
-
-        //Detect Current Run
-        DetectRun();
+        if(SceneManager.GetActiveScene().buildIndex == 2) LoadLevelThree();
     }
 
     private void FixedUpdate() {
-        //Update Meter Dynamically
-        Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER, EventNames.Scene1.INCREASE_METER, meterValue);
+        //StateHandler
+        StateHandler();
 
         //Update VFX
         Broadcaster.Instance.AddVFXState(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, vfxState);
+
+        //Level One Specific
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
+             //Update Meter Dynamically
+            Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER, EventNames.Scene1.INCREASE_METER, meterValue);
+        }
+
+        //Level Three Specific
+        if(SceneManager.GetActiveScene().buildIndex == 2) {
+            if(levelState == LevelState.Playable) CheckDir();
+            UpdateCounter();
+            Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER_VERT, EventNames.Scene1.INCREASE_METER_VERT, meterValue_Vert);
+        }
     }
 
     private void LoadGameUI() {
-        //UI
-        meterUI = transform.Find("METER UI").gameObject;
+
+        //General
         pauseText = transform.Find("GAME UI/Pause").gameObject;
+        pauseText.SetActive(false);
 
-        //Overlay
         playHUD = transform.Find("GAME UI/PlayHUD").gameObject;
-        pauseHUD = transform.Find("GAME UI/PauseHUD").gameObject;
-        endHUD = transform.Find("GAME UI/EndHUD").gameObject;
-
-        //Screen
-        endScreen = transform.Find("View/Game/EndScreen").gameObject;
-
-        //Set Overlay
         playHUD.SetActive(true);
+
+        pauseHUD = transform.Find("GAME UI/PauseHUD").gameObject;
         pauseHUD.SetActive(false);
+
+        endHUD = transform.Find("GAME UI/EndHUD").gameObject;
         endHUD.SetActive(false);
 
-        //Set Screen
+        endScreen = transform.Find("View/Game/EndScreen").gameObject;
         endScreen.SetActive(false);
 
-        //Set Elements
-        meterUI.SetActive(true);
-        pauseText.SetActive(false);
+        //Level 0 Specific
+        if(SceneManager.GetActiveScene().buildIndex == 0) { 
+            inputUI = transform.Find("INPUT UI").gameObject;
+            inputText = inputUI.transform.Find("Input").GetComponent<TextMeshProUGUI>();
+        }
+
+        //Level 0 and 1 Specific
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
+            meterUI = transform.Find("METER UI").gameObject;
+            meterUI.SetActive(true);
+        }
+
+        //Level 3 Specific
+        if(SceneManager.GetActiveScene().buildIndex == 2) { 
+            meterUI_Vert = transform.Find("METER UI (Vertical)").gameObject;
+            meterUI_Vert.SetActive(false);
+        }
     }
 
     private void LoadGameViews() {
@@ -131,9 +165,10 @@ public class LevelController : MonoBehaviour
         horrorPauseProfile.SetActive(false);
     }
 
+    //Init Level One
     private void LoadLevelOne() {
         //Init Vars
-        gameState = GameState.Play;
+        gameState = GameTimeManager.Instance.gameState;
         levelState = LevelState.Playable;
         meterValue = 0;
 
@@ -146,77 +181,74 @@ public class LevelController : MonoBehaviour
         rb.useGravity = false;
         Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, -1.25f, Daikon.transform.localPosition.z);
 
-        //Init PostProcess
-        if(SceneManager.GetActiveScene().buildIndex == 1) InitPostProcess();
-
         //Init Particle
         ground = this.transform.Find("GroundDust").GetComponentInChildren<ParticleSystem>();
-        pop = this.transform.Find("Pop Particle").GetComponentInChildren<ParticleSystem>();
-        ground.Stop();
-        pop.Clear();
-        pop.Stop();
 
-        //Input UI
-        inputUI = transform.Find("INPUT UI").gameObject;
-        inputText = inputUI.transform.Find("Input").GetComponent<TextMeshProUGUI>();
+        //Level 0 Specific
+        if(SceneManager.GetActiveScene().buildIndex == 0) {
+            pop = this.transform.Find("Pop Particle").GetComponentInChildren<ParticleSystem>();
+            ground.Stop();
+            pop.Clear();
+            EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun);
+        }
+
+        //Level 1 Specific
+        if(SceneManager.GetActiveScene().buildIndex == 1) InitPostProcess();
 
         //Score
         canvasObject = transform.Find("ANIMATE UI").gameObject;
         canvasObject.GetComponent<CanvasGroup>().alpha = 0;
 
         //AddObservers
-        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun); //Initial Level / Tutorial
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayGame);
     }
 
-    private void InitPostProcess() {
-        float chancesFloat = UnityEngine.Random.Range(0f,1f);
-        ChangeProcess(chancesFloat, 1);
-    }
+    //Init Level Three
+    private void LoadLevelThree() {
+        //Set Vars
+        gameState = GameTimeManager.Instance.gameState;
+        levelState = LevelState.Playable;
+        meterValue_Vert = 0;
+        counter = 0;
+        PlayerData.counterDaikon = counter;
 
-    private void ChangeProcess(float chances, int sceneNum) {
-        switch(sceneNum) {
-            case 1:
-                if(chances <= 0.25) {
-                    enableHorror = true;
-                    //PostProcess
-                    pauseProfile.SetActive(false);
-                    horrorPauseProfile.SetActive(false);
-                    horrorProfile.SetActive(true);
+        //Set Player
+        player = this.transform.Find("Player").gameObject;
+        rb = player.GetComponent<Rigidbody>();
 
-                    //HUD
-                    playHUD.SetActive(true);
-                    pauseHUD.SetActive(false);
+        //Set Collider
+        interactCollider = this.transform.Find("Player/Interact").gameObject;
 
-                    //Elements
-                    pauseText.SetActive(false);
-                }
-                break;
-        }
+        //Set Particle
+        playerDust = this.transform.Find("Player/PlayerDust").gameObject.GetComponent<ParticleSystem>();
+        playerDust.Clear();
+
+        //Init PostProcess
+        InitPostProcess();
+
+        //Set UI
+        meterUI_Vert.SetActive(true);
+
+        //Add Observer
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.MOVE_INPUT, this.MoveEvent);
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_E, this.InteractPile);
     }
 
     private void OnDestroy() {
+        //Level 0 and Level 1
         EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
-    }
 
-    private void DetectRun() {
-        startState = GameTimeManager.Instance.startState;
-
-        if(startState == StartState.Yes) {
-            this.inputUI.SetActive(true);
-        }
-        else {
-            this.inputUI.SetActive(false);
-            DestroyInputUI();
-            
-        }
+        //Level 3
+        EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_E);
+        EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.MOVE_INPUT);
     }
 
     private void FirstRun(Parameters parameters) {
-        inputPress = parameters.GetBoolExtra(INPUT_PRESS, false);
+        spacePress = parameters.GetBoolExtra(INPUT_PRESS, false);
         if(startState == StartState.Yes) {
             BlinkAnim();
-            if(inputPress) {
+            if(spacePress) {
                 //Set State to no
                 startState = StartState.No;
 
@@ -233,30 +265,19 @@ public class LevelController : MonoBehaviour
         }
     }
     
+    //Level One
     private void InputPress(Parameters parameters) {
-        inputPress = parameters.GetBoolExtra(INPUT_PRESS, false);
-    
-        if(inputPress) {
+        spacePress = parameters.GetBoolExtra(INPUT_PRESS, false);
+        if(spacePress) {
             EnableAnim();
         }
-
-        StateHandler();
         PlayParticle();
-    }
-
-    //Particle Player
-    private void PlayParticle() {
-        if(inputPress) ground.Play();
-        else ground.Stop();
     }
 
     //State Handler
     private void StateHandler() {
         gameState = GameTimeManager.Instance.gameState;
-        if(gameState == GameState.Play) {
-            PlayGame();
-        }
-        else {
+        if(gameState == GameState.End) {
             Time.timeScale = 0;
             levelState = LevelState.Unplayable;
 
@@ -271,21 +292,21 @@ public class LevelController : MonoBehaviour
             ground.Stop();
 
             // Disable SFX
-            Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, 
-                                                EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
+            Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
 
             //Hide Meter
-            HideMeter();
+            HideMeters();
 
             //Enable Pause Camera
             EnableEndCamera();
         }
     }
 
-    private void PlayGame() {
+    private void PlayGame(Parameters parameters) {
+        spacePress = parameters.GetBoolExtra(INPUT_PRESS, false);
         if(meterValue >= 100) {
             //GAME PAUSED
-            HideMeter();
+            HideMeters();
             EnablePauseCamera_Variation();
 
             //Pause Func
@@ -305,14 +326,13 @@ public class LevelController : MonoBehaviour
             Invoke(nameof(ChangeScene), 2.5f);
         }
 
-        if(inputPress && levelState == LevelState.Playable) {
+        if(spacePress && levelState == LevelState.Playable) {
             Rigidbody rb = Daikon.GetComponent<Rigidbody>();
 
             PlayerData.Score += 10;
 
             //Enable Camera Shake when Input
             vfxState = VFXState.Playing;
-            
 
             //Update Object
             if(meterValue == 25) UpdateDaikon(-1f);
@@ -324,49 +344,160 @@ public class LevelController : MonoBehaviour
         }
     }
 
+    //Daikon Controller
+    private void UpdateDaikon(float value) {
+        Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, value, Daikon.transform.localPosition.z);
+    }
+
+    private void DelayedForce() {
+        //Launch The Radish!
+        Rigidbody rb = Daikon.GetComponent<Rigidbody>();
+        rb.useGravity = true;
+        rb.isKinematic = false;
+        float throwSpeed = 6f;
+        float launchAngle = -2.5f;
+        
+        Quaternion rotation = Quaternion.Euler( launchAngle, 0, 0);
+        Quaternion rotationSpeed = Quaternion.Euler(10f,10f,10f);
+        Vector3 velocity = rotation * (Vector3.up * throwSpeed) + (Vector3.forward * 2.5f);
+        
+        rb.velocity = velocity;
+        rb.rotation = rotationSpeed;
+    }
+
+    //Level Three
+    private void CheckDir() {
+        switch(PlayerData.HorizontalDir) {
+            case Direction_Hor.Right:
+                player.transform.localScale = new Vector3(-0.625f, player.transform.localScale.y, player.transform.localScale.z); 
+                break;
+            case Direction_Hor.Left:
+                player.transform.localScale = new Vector3(0.625f, player.transform.localScale.y, player.transform.localScale.z); 
+                break;
+        }
+    }
+
+    private void MoveEvent(Parameters parameters) {
+        moveInput = parameters.GetVector3Extra(KEY_MOVE, Vector3.zero);
+        if(levelState == LevelState.Playable) {
+            //Particle
+            // PlayerParticle();
+            PlayParticle();
+            rb.MovePosition(player.transform.position + moveInput.ToIso() * moveInput.normalized.magnitude * 2.5f * Time.deltaTime);
+        }
+    }
+
+    private void PlayerParticle() {
+        ParticleSystem.EmissionModule temp = playerDust.emission;
+        if(PlayerData.playerState == PlayerState.Moving) temp.enabled = true;
+        else temp.enabled = false;
+    }
+
+    private void InteractPile(Parameters parameters) {
+        ePress = parameters.GetBoolExtra(INPUT_E, false);
+        if(ePress && levelState == LevelState.Playable) {
+            PlayerData.ePress = true;
+            
+        }
+        else {
+            PlayerData.ePress = false;
+        }
+    }
+
+
+    private void UpdateCounter() {
+        counter = PlayerData.counterDaikon;
+        
+        if(counter == 0) meterValue_Vert = 0;
+        else if(counter == 1) meterValue_Vert = 25;
+        else if(counter == 2) meterValue_Vert = 50;
+        else if(counter == 3) meterValue_Vert = 75;
+        else {
+            meterValue_Vert = 100;
+            
+            HideMeters();
+            EnablePauseCamera_Variation();
+
+            GameTimeManager.Instance.timerState = TimerState.Paused;
+
+            // // Disable SFX
+            // Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, 
+            //                                     EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
+
+            levelState = LevelState.Unplayable;
+            Invoke(nameof(ChangeScene),2.5f);
+        }
+    }
+
+    //Effects
+    private void PlayParticle() {
+        switch(SceneManager.GetActiveScene().buildIndex) {
+            case 0:
+                if(spacePress) ground.Play();
+                else ground.Stop();
+                break;
+            case 1:
+                if(spacePress) ground.Play();
+                else ground.Stop();
+                break;
+            case 2:
+                ParticleSystem.EmissionModule temp = playerDust.emission;
+                if(PlayerData.playerState == PlayerState.Moving) temp.enabled = true;
+                else temp.enabled = false;
+                break;
+        }
+    }
+
+    //Post Process Things
+    private void InitPostProcess() {
+        float chancesFloat = UnityEngine.Random.Range(0f,1f);
+        if(chancesFloat <= 0.25) {
+            enableHorror = true;
+            //PostProcess
+            pauseProfile.SetActive(false);
+            horrorPauseProfile.SetActive(false);
+            horrorProfile.SetActive(true);
+
+            //HUD
+            playHUD.SetActive(true);
+            pauseHUD.SetActive(false);
+
+            //Elements
+            pauseText.SetActive(false);
+        }
+    }
+
     //HideStuffs
-    private void HideMeter() {
-        meterUI.SetActive(false);
+    private void HideMeters() {
+        switch(SceneManager.GetActiveScene().buildIndex) {
+            case 0:
+                meterUI.SetActive(false);
+                break;
+            case 1:
+                meterUI.SetActive(false);
+                break;
+            case 2:
+                meterUI_Vert.SetActive(false);
+                break;
+        }
     }
 
-    private void EnableInitialPause() {
-        //PostProcess
-        pauseProfile.SetActive(true);
-
-        //HUD
-        playHUD.SetActive(false);
-        pauseHUD.SetActive(true);
-
-        //Elements
-        pauseText.SetActive(true);
-    }
-
+    //Views
     private void EnablePauseCamera_Variation() {
-        Debug.Log(enableHorror);
         if(enableHorror == true) {
             pauseProfile.SetActive(false);
             horrorPauseProfile.SetActive(true);
             horrorProfile.SetActive(false);
-
-            playHUD.SetActive(false);
-            pauseHUD.SetActive(true);
-
-            pauseText.SetActive(true);
         }
-
         else {
             //PostProcess
             pauseProfile.SetActive(true);
             horrorPauseProfile.SetActive(false);
             horrorProfile.SetActive(false);
-
-            //HUD
-            playHUD.SetActive(false);
-            pauseHUD.SetActive(true);
-
-            //Elements
-            pauseText.SetActive(true);
         }
+        playHUD.SetActive(false);
+        pauseHUD.SetActive(true);
+        pauseText.SetActive(true);
     }
 
     private void EnableEndCamera() {
@@ -384,35 +515,10 @@ public class LevelController : MonoBehaviour
         endScreen.SetActive(true);
     }
 
-    //Daikon Controller
-    private void UpdateDaikon(float value) {
-        Daikon.transform.localPosition = new Vector3(Daikon.transform.localPosition.x, value, Daikon.transform.localPosition.z);
-    }
-
-    private void DelayedForce() {
-        Rigidbody rb = Daikon.GetComponent<Rigidbody>();
-        rb.useGravity = true;
-        rb.isKinematic = false;
-
-        float throwSpeed = 6f;
-        float launchAngle = -2.5f;
-        Quaternion rotationSpeed;
-        
-        Quaternion rotation = Quaternion.Euler( launchAngle, 0, 0);
-
-        rotationSpeed = Quaternion.Euler(10f,10f,10f);
-        
-        Vector3 velocity = rotation * (Vector3.up * throwSpeed) + (Vector3.forward * 2.5f);
-        
-        rb.velocity = velocity;
-        rb.rotation = rotationSpeed;
-    }
-
     //Scene Changer
     private void ChangeScene() {
 
         //Change Next Scene
-        PlayerData.currentScene = 0;
         SceneController.Instance.ChangeSceneManager();
 
         //Resume Func

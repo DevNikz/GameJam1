@@ -6499,14 +6499,14 @@ ParticleSystem:
   serializedVersion: 8
   lengthInSec: 0.2
   simulationSpeed: 5
-  stopAction: 0
+  stopAction: 2
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -19131,10 +19131,15 @@ MonoBehaviour:
   gameState: 0
   levelState: 0
   vfxState: 1
-  inputPress: 0
+  spacePress: 0
+  ePress: 0
   meterValue: 0
   meterUI: {fileID: 0}
   Daikon: {fileID: 0}
+  moveInput: {x: 0, y: 0, z: 0}
+  player: {fileID: 0}
+  CurrentHor: 0
+  interactCollider: {fileID: 0}
   inputUI: {fileID: 0}
   inputText: {fileID: 0}
   playHUD: {fileID: 0}

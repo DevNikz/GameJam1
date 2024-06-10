@@ -35,6 +35,12 @@ public class Broadcaster : MonoBehaviour
         EventBroadcaster.Instance.PostEvent(eventName, tempParam);
     }
 
+    public void AddVectorParam(string stateName, string eventName, Vector3 Value) {
+        Parameters tempParam = new Parameters();
+        tempParam.PutExtra(stateName, Value);
+        EventBroadcaster.Instance.PostEvent(eventName, tempParam);
+    }
+
     public void AddStartState(string stateName, string eventName, StartState Value) {
         Parameters tempParam = new Parameters();
         tempParam.PutExtra(stateName, Value);
