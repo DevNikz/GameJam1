@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
-using System.Threading;
+using UnityEngine.SceneManagement;
 
 public class CameraShake : MonoBehaviour
 {
@@ -19,6 +17,17 @@ public class CameraShake : MonoBehaviour
 
     private void Start() {
         StopShake();
+
+        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
+            ShakeIntensity = 0.5f;
+            ShakeTime = 0.1f;
+        }
+
+        else if(SceneManager.GetActiveScene().buildIndex == 2) {
+            ShakeIntensity = 1f;
+            ShakeTime = 0.1f;
+        }
+
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.CAMERA_SHAKE, this.EnableShake);
     }
 

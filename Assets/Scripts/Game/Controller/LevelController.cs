@@ -94,6 +94,8 @@ public class LevelController : MonoBehaviour
     }
 
     private void FixedUpdate() {
+
+
         //Level One Specific
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
             //Update Meter Dynamically
@@ -187,7 +189,6 @@ public class LevelController : MonoBehaviour
 
         //AddObservers
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
-        // EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayGame);
 
         //Level 0 Specific
         if(SceneManager.GetActiveScene().buildIndex == 0) {
@@ -285,12 +286,12 @@ public class LevelController : MonoBehaviour
             
             //Remove Observer
             EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
+            EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_E);
 
-            //Stop Ground vfx
-            ground.Stop();
-
-            // Disable SFX
-            Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
+            if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
+                ground.Stop();
+                Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
+            }   
 
             //Hide Meter
             HideMeters();
@@ -314,8 +315,7 @@ public class LevelController : MonoBehaviour
             levelState = LevelState.Unplayable;
 
             // Disable SFX
-            Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, 
-                                                EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
+            Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
 
             //Launch Object
             Invoke(nameof(DelayedForce), 0.025f);
@@ -403,6 +403,7 @@ public class LevelController : MonoBehaviour
         else {
             PlayerData.ePress = false;
         }
+        StateHandler();
     }
 
 
@@ -421,12 +422,11 @@ public class LevelController : MonoBehaviour
 
             GameTimeManager.Instance.timerState = TimerState.Paused;
 
-            // // Disable SFX
-            // Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, 
-            //                                     EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
+            // Disable SFX
+            Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
 
             levelState = LevelState.Unplayable;
-            Invoke(nameof(ChangeScene),2.5f);
+            Invoke(nameof(ChangeScene),3f);
         }
     }
 
@@ -452,7 +452,7 @@ public class LevelController : MonoBehaviour
     //Post Process Things
     private void InitPostProcess() {
         float chancesFloat = UnityEngine.Random.Range(0f,1f);
-        if(chancesFloat <= 0.25) {
+        if(chancesFloat <= 0.05) {
             enableHorror = true;
             //PostProcess
             pauseProfile.SetActive(false);
@@ -502,6 +502,9 @@ public class LevelController : MonoBehaviour
     }
 
     private void EnableEndCamera() {
+        //Elements
+        endScreen.SetActive(true);
+
         //PostProcess
         pauseProfile.SetActive(true);
         horrorPauseProfile.SetActive(false);
@@ -511,10 +514,8 @@ public class LevelController : MonoBehaviour
         playHUD.SetActive(false);
         pauseHUD.SetActive(false);
         endHUD.SetActive(true);
-        inputUI.SetActive(false);
 
-        //Elements
-        endScreen.SetActive(true);
+        if(SceneManager.GetActiveScene().buildIndex == 0) inputUI.SetActive(false);
     }
 
     //Scene Changer

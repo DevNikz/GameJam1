@@ -24,19 +24,11 @@ public class SFXController : MonoBehaviour
         audioSource.volume = Volume;
         audioSource = this.gameObject.GetComponent<AudioSource>();
 
-        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) loadLevelOne();
-    }
-
-    private void OnDestroy() {
-        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) destroyLevelOne();
-    }
-
-    private void loadLevelOne() {
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayClip);
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.DISABLE_SFX, this.PlayClip);
     }
 
-    private void destroyLevelOne() {
+    private void OnDestroy() {
         EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
         EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.DISABLE_SFX);
     }
