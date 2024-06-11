@@ -74,6 +74,7 @@ public class GameTimeManager : MonoBehaviour
             PlayerData.Timer = timer;
             if(timer <= 0) {
                 gameState = GameState.End;
+                timerState = TimerState.Paused;
                 Time.timeScale = 0;
             }
         }

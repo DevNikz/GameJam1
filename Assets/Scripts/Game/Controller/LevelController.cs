@@ -62,8 +62,9 @@ public class LevelController : MonoBehaviour
     private GameObject horrorPauseProfile;
 
     //Score
-    private GameObject canvasObject;
-    private List<GameObject> canvasList;
+    [Header("Score")]
+    [SerializeField] private GameObject canvasObject;
+    [SerializeField] private List<GameObject> canvasList;
 
     //Effects
     private ParticleSystem ground;
@@ -89,24 +90,18 @@ public class LevelController : MonoBehaviour
 
         //Load Initial Level / Level One
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) LoadLevelOne();
-        if(SceneManager.GetActiveScene().buildIndex == 2) LoadLevelThree();
+        else if(SceneManager.GetActiveScene().buildIndex == 2) LoadLevelThree();
     }
 
     private void FixedUpdate() {
-        //StateHandler
-        StateHandler();
-
-        //Update VFX
-        Broadcaster.Instance.AddVFXState(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, vfxState);
-
         //Level One Specific
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
-             //Update Meter Dynamically
+            //Update Meter Dynamically
             Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER, EventNames.Scene1.INCREASE_METER, meterValue);
         }
 
         //Level Three Specific
-        if(SceneManager.GetActiveScene().buildIndex == 2) {
+        else if(SceneManager.GetActiveScene().buildIndex == 2) {
             if(levelState == LevelState.Playable) CheckDir();
             UpdateCounter();
             Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER_VERT, EventNames.Scene1.INCREASE_METER_VERT, meterValue_Vert);
@@ -135,16 +130,18 @@ public class LevelController : MonoBehaviour
         if(SceneManager.GetActiveScene().buildIndex == 0) { 
             inputUI = transform.Find("INPUT UI").gameObject;
             inputText = inputUI.transform.Find("Input").GetComponent<TextMeshProUGUI>();
+            meterUI = transform.Find("METER UI").gameObject;
+            meterUI.SetActive(true);
         }
 
         //Level 0 and 1 Specific
-        if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
+        else if(SceneManager.GetActiveScene().buildIndex == 1) {
             meterUI = transform.Find("METER UI").gameObject;
             meterUI.SetActive(true);
         }
 
         //Level 3 Specific
-        if(SceneManager.GetActiveScene().buildIndex == 2) { 
+        else if(SceneManager.GetActiveScene().buildIndex == 2) { 
             meterUI_Vert = transform.Find("METER UI (Vertical)").gameObject;
             meterUI_Vert.SetActive(false);
         }
@@ -184,6 +181,14 @@ public class LevelController : MonoBehaviour
         //Init Particle
         ground = this.transform.Find("GroundDust").GetComponentInChildren<ParticleSystem>();
 
+        //Score
+        canvasObject = transform.Find("ANIMATE UI").gameObject;
+        canvasObject.GetComponent<CanvasGroup>().alpha = 0;
+
+        //AddObservers
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
+        // EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayGame);
+
         //Level 0 Specific
         if(SceneManager.GetActiveScene().buildIndex == 0) {
             pop = this.transform.Find("Pop Particle").GetComponentInChildren<ParticleSystem>();
@@ -193,15 +198,7 @@ public class LevelController : MonoBehaviour
         }
 
         //Level 1 Specific
-        if(SceneManager.GetActiveScene().buildIndex == 1) InitPostProcess();
-
-        //Score
-        canvasObject = transform.Find("ANIMATE UI").gameObject;
-        canvasObject.GetComponent<CanvasGroup>().alpha = 0;
-
-        //AddObservers
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
-        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayGame);
+        else if(SceneManager.GetActiveScene().buildIndex == 1) InitPostProcess();
     }
 
     //Init Level Three
@@ -271,19 +268,20 @@ public class LevelController : MonoBehaviour
         if(spacePress) {
             EnableAnim();
         }
+        StateHandler();
         PlayParticle();
     }
 
     //State Handler
     private void StateHandler() {
         gameState = GameTimeManager.Instance.gameState;
-        if(gameState == GameState.End) {
+        if (gameState == GameState.Play) {
+            if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) PlayGame();
+        }
+        else {
             Time.timeScale = 0;
+            gameState = GameState.End;
             levelState = LevelState.Unplayable;
-
-            //Pause Timer
-            GameTimeManager.Instance.timerState = TimerState.Paused;
-            MusicController.Instance.gameState = GameState.End;
             
             //Remove Observer
             EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
@@ -300,10 +298,10 @@ public class LevelController : MonoBehaviour
             //Enable Pause Camera
             EnableEndCamera();
         }
+        
     }
 
-    private void PlayGame(Parameters parameters) {
-        spacePress = parameters.GetBoolExtra(INPUT_PRESS, false);
+    private void PlayGame() {
         if(meterValue >= 100) {
             //GAME PAUSED
             HideMeters();
@@ -333,6 +331,9 @@ public class LevelController : MonoBehaviour
 
             //Enable Camera Shake when Input
             vfxState = VFXState.Playing;
+
+            //Update VFX
+            Broadcaster.Instance.AddBoolParam(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, true);
 
             //Update Object
             if(meterValue == 25) UpdateDaikon(-1f);
@@ -510,6 +511,7 @@ public class LevelController : MonoBehaviour
         playHUD.SetActive(false);
         pauseHUD.SetActive(false);
         endHUD.SetActive(true);
+        inputUI.SetActive(false);
 
         //Elements
         endScreen.SetActive(true);
