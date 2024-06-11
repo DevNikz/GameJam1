@@ -10,7 +10,7 @@ public class CameraShake : MonoBehaviour
     [SerializeField] public float ShakeIntensity = 0.5f;
     [SerializeField] public float ShakeTime = 0.1f;
 
-    public float timer = 0;
+    [SerializeReference] public float timer = 0;
     private CinemachineBasicMultiChannelPerlin _cbmcp;
 
     private bool inputPress;
@@ -37,6 +37,8 @@ public class CameraShake : MonoBehaviour
 
     private void EnableShake(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(CAMERA_SHAKE, false);
+        Debug.Log(inputPress);
+        if(inputPress) ShakeCamera();
     }
 
     public void ShakeCamera() {

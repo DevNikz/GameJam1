@@ -7,7 +7,7 @@ public class SceneController : MonoBehaviour
 {
     public static SceneController Instance;
 
-    private int currentScene = 0;
+    private int currentScene;
 
     private void Awake() {
         if(Instance == null) {
@@ -18,16 +18,24 @@ public class SceneController : MonoBehaviour
     }
 
     public void ChangeSceneManager() {
-        if(PlayerData.currentScene == 0) { 
+        if(SceneManager.GetActiveScene().buildIndex == 0) { 
             LoadScene1();
         }
-        else if(PlayerData.currentScene == 1) {
+        else if(SceneManager.GetActiveScene().buildIndex == 1) {
             LoadScene1();
+        }
+        else if(SceneManager.GetActiveScene().buildIndex == 2) {
+            LoadScene3();
         }
     }
 
     private void LoadScene1() {
         currentScene = 1;
+        SceneManager.LoadScene(currentScene);
+    }
+
+    private void LoadScene3() {
+        currentScene = 2;
         SceneManager.LoadScene(currentScene);
     }
 }

@@ -39,8 +39,9 @@ public class MusicController : MonoBehaviour
     }
 
     private void CheckState() {
-        if(gameState == GameState.End) {
-            // Debug.Log("Stopping Music");
+        if(GameTimeManager.Instance.gameState == GameState.End) {
+            Debug.Log("Stopping Music");
+            gameState = GameState.End;
             audioSource.clip = clips[1];
             audioSource.Play();
             Destroy(this);

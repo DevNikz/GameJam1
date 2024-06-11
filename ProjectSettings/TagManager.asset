@@ -8,6 +8,8 @@ TagManager:
   - SFX
   - PostProcessing
   - Focused
+  - Bounds
+  - 'Bounds [Used]'
   layers:
   - Default
   - TransparentFX

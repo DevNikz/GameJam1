@@ -6,10 +6,15 @@ public class EventNames {
 		public const string INTERACT_PRESS = "INTERACT_PRESS";
 		public const string INTERACT_HOLD = "INTERACT_HOLD";
 		public const string INTERACT_TOGGLE = "INTERACT_TOGGLE";
+
+		public const string MOVE_INPUT = "MOVE_INPUT";
+
+		public const string INTERACT_E = "INTERACT_E";
 	}
 
 	public class Scene1 {
 		public const string INCREASE_METER = "INCREASE_METER";
+		public const string INCREASE_METER_VERT = "INCREASE_METER_VERT";
 
 		public const string DISABLE_SFX = "DISABLE_SFX";
 
