@@ -8,6 +8,7 @@ using UnityEngine.SocialPlatforms.Impl;
 
 public class LevelController : MonoBehaviour
 {
+    public static LevelController Instance;
     //Game
     [Header("States")]
     [SerializeField] public StartState startState = StartState.Yes;
@@ -18,6 +19,8 @@ public class LevelController : MonoBehaviour
     //Input
     [Header("Input")]
     [SerializeField] public bool spacePress;
+    [SerializeField] public bool spaceHold;
+    [SerializeField] public bool spaceReleased;
     [SerializeField] public bool ePress;
 
     //Scene 1 Specific
@@ -26,6 +29,13 @@ public class LevelController : MonoBehaviour
     [SerializeField] public int meterValue;
     private GameObject meterUI;
     private GameObject Daikon;
+
+    [Header("Scene2")]
+    [Range(0, 100)]
+    [SerializeField] public int meterFill;
+    public GameObject fillUI;
+    public GameObject dropUI;
+    private float dropPos;
 
     //Scene 3 Specific
     [Header("Scene 3")]
@@ -64,11 +74,13 @@ public class LevelController : MonoBehaviour
     //Score
     [Header("Score")]
     [SerializeField] private GameObject canvasObject;
+    [SerializeField] private GameObject canvasObjectALT;
     [SerializeField] private List<GameObject> canvasList;
 
     //Effects
     private ParticleSystem ground;
     private ParticleSystem pop;
+    private ParticleSystem water;
 
     //Animation
     private Color startColor = new Color(1,1,1,1);
@@ -78,6 +90,8 @@ public class LevelController : MonoBehaviour
 
     //EventBroadcaster
     public const string INPUT_PRESS = "INPUT_PRESS";
+    public const string INPUT_HOLD = "INPUT_HOLD";
+    public const string INPUT_RELEASED = "INPUT_RELEASED";
     public const string INPUT_E = "INPUT_E";
     public const string KEY_MOVE = "KEY_MOVE";
 
@@ -90,20 +104,24 @@ public class LevelController : MonoBehaviour
 
         //Load Initial Level / Level One
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) LoadLevelOne();
-        else if(SceneManager.GetActiveScene().buildIndex == 2) LoadLevelThree();
+        else if(SceneManager.GetActiveScene().buildIndex == 2) LoadLevelTwo();
+        else if(SceneManager.GetActiveScene().buildIndex == 3) LoadLevelThree();
     }
 
     private void FixedUpdate() {
-
-
         //Level One Specific
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
             //Update Meter Dynamically
             Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER, EventNames.Scene1.INCREASE_METER, meterValue);
         }
 
-        //Level Three Specific
+        //Level Two Specific
         else if(SceneManager.GetActiveScene().buildIndex == 2) {
+            Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER_VERT, EventNames.Scene1.INCREASE_METER_VERT, meterFill);
+        }
+
+        //Level Three Specific
+        else if(SceneManager.GetActiveScene().buildIndex == 3) {
             if(levelState == LevelState.Playable) CheckDir();
             UpdateCounter();
             Broadcaster.Instance.AddIntParam(UIController.INCREASE_METER_VERT, EventNames.Scene1.INCREASE_METER_VERT, meterValue_Vert);
@@ -128,6 +146,10 @@ public class LevelController : MonoBehaviour
         endScreen = transform.Find("View/Game/EndScreen").gameObject;
         endScreen.SetActive(false);
 
+        //Score
+        canvasObject = transform.Find("ANIMATE UI").gameObject;
+        canvasObject.GetComponent<CanvasGroup>().alpha = 0;
+
         //Level 0 Specific
         if(SceneManager.GetActiveScene().buildIndex == 0) { 
             inputUI = transform.Find("INPUT UI").gameObject;
@@ -140,12 +162,33 @@ public class LevelController : MonoBehaviour
         else if(SceneManager.GetActiveScene().buildIndex == 1) {
             meterUI = transform.Find("METER UI").gameObject;
             meterUI.SetActive(true);
+
+            canvasObjectALT = transform.Find("ANIMATE UI (ALT)").gameObject;
+            canvasObjectALT.GetComponent<CanvasGroup>().alpha = 0;
+            canvasObjectALT.SetActive(false);
+        }
+
+        //Level 2 Specific
+        else if(SceneManager.GetActiveScene().buildIndex == 2) { 
+            fillUI = transform.Find("QTE UI").gameObject;
+            fillUI.SetActive(true);
+
+            dropUI = fillUI.transform.Find("Drop").gameObject;
+            dropUI.SetActive(true);
+
+            canvasObjectALT = transform.Find("ANIMATE UI (ALT)").gameObject;
+            canvasObjectALT.GetComponent<CanvasGroup>().alpha = 0;
+            canvasObjectALT.SetActive(false);
         }
 
         //Level 3 Specific
-        else if(SceneManager.GetActiveScene().buildIndex == 2) { 
+        else if(SceneManager.GetActiveScene().buildIndex == 3) { 
             meterUI_Vert = transform.Find("METER UI (Vertical)").gameObject;
-            meterUI_Vert.SetActive(false);
+            meterUI_Vert.SetActive(true);
+
+            canvasObjectALT = transform.Find("ANIMATE UI (ALT)").gameObject;
+            canvasObjectALT.GetComponent<CanvasGroup>().alpha = 0;
+            canvasObjectALT.SetActive(false);
         }
     }
 
@@ -182,10 +225,7 @@ public class LevelController : MonoBehaviour
 
         //Init Particle
         ground = this.transform.Find("GroundDust").GetComponentInChildren<ParticleSystem>();
-
-        //Score
-        canvasObject = transform.Find("ANIMATE UI").gameObject;
-        canvasObject.GetComponent<CanvasGroup>().alpha = 0;
+        ground.Stop();
 
         //AddObservers
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputPress);
@@ -193,13 +233,30 @@ public class LevelController : MonoBehaviour
         //Level 0 Specific
         if(SceneManager.GetActiveScene().buildIndex == 0) {
             pop = this.transform.Find("Pop Particle").GetComponentInChildren<ParticleSystem>();
-            ground.Stop();
             pop.Clear();
             EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.FirstRun);
         }
 
         //Level 1 Specific
         else if(SceneManager.GetActiveScene().buildIndex == 1) InitPostProcess();
+    }
+
+    //Init Level Two
+    private void LoadLevelTwo() {
+        //Set Vars
+        gameState = GameTimeManager.Instance.gameState;
+        levelState = LevelState.Playable;
+        meterFill = 0;
+
+        //Init Particle
+        water = this.transform.Find("Water").GetComponentInChildren<ParticleSystem>();
+        water.Stop();
+
+        //Init PostProcess
+        InitPostProcess();
+
+        //Add Observer
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.InputListen);
     }
 
     //Init Level Three
@@ -224,9 +281,6 @@ public class LevelController : MonoBehaviour
 
         //Init PostProcess
         InitPostProcess();
-
-        //Set UI
-        meterUI_Vert.SetActive(true);
 
         //Add Observer
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.MOVE_INPUT, this.MoveEvent);
@@ -327,7 +381,9 @@ public class LevelController : MonoBehaviour
         if(spacePress && levelState == LevelState.Playable) {
             Rigidbody rb = Daikon.GetComponent<Rigidbody>();
 
-            PlayerData.Score += 10;
+            if(enableHorror) PlayerData.Score += 20;
+
+            else PlayerData.Score += 10;
 
             //Enable Camera Shake when Input
             vfxState = VFXState.Playing;
@@ -335,13 +391,12 @@ public class LevelController : MonoBehaviour
             //Update VFX
             Broadcaster.Instance.AddBoolParam(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, true);
 
+            meterValue += 5;
+
             //Update Object
             if(meterValue == 25) UpdateDaikon(-1f);
             else if(meterValue == 50) UpdateDaikon(-0.75f);
             else if(meterValue == 75) UpdateDaikon(-0.5f);
-
-            //Update Meter
-            meterValue += 5;
         }
     }
 
@@ -366,6 +421,67 @@ public class LevelController : MonoBehaviour
         rb.rotation = rotationSpeed;
     }
 
+    //Level Two
+    private void InputListen(Parameters parameters) {
+        spacePress = parameters.GetBoolExtra(INPUT_PRESS, false);
+        if(spacePress) {
+            dropPos = dropUI.transform.localPosition.x;
+            CheckHit();
+        }
+        StateHandler();
+    }
+
+    private void CheckHit() {
+        if(dropPos > -15 && dropPos < 15) {
+
+            //Update Meter
+            meterFill += 20;
+
+            //Enable Camera Shake when Input
+            vfxState = VFXState.Playing;
+
+            //Update VFX
+            Broadcaster.Instance.AddBoolParam(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, true);
+            Broadcaster.Instance.AddBoolParam(SFXController.PLAY_CLIP_S2, EventNames.KeyboardInput.INTERACT_PRESS, true);
+            
+            //Add Score
+            if(enableHorror) PlayerData.Score += 30;
+            else PlayerData.Score += 20;
+
+            EnableAnim();
+            PlayParticle();
+
+            //If fill is Full
+            if(meterFill >= 100) {
+                meterFill = 100; 
+
+                //GAME PAUSED
+                HideMeters();
+                EnablePauseCamera_Variation();
+
+                //Pause Func
+                GameTimeManager.Instance.timerState = TimerState.Paused;
+
+                water.Pause();
+
+                //Init Level as Unplayable
+                levelState = LevelState.Unplayable;
+
+                // Disable SFX
+                Broadcaster.Instance.AddSFXState(SFXController.DISABLE_SFX, EventNames.Scene1.DISABLE_SFX, SFXState.Paused);
+
+                //Change Scene
+                Invoke(nameof(ChangeScene), 2.5f);
+            }
+        }
+        else {
+            meterFill -= 10;
+            if(meterFill <= 0) {
+                meterFill = 0;
+            }
+        }
+    }
+
     //Level Three
     private void CheckDir() {
         switch(PlayerData.HorizontalDir) {
@@ -382,9 +498,8 @@ public class LevelController : MonoBehaviour
         moveInput = parameters.GetVector3Extra(KEY_MOVE, Vector3.zero);
         if(levelState == LevelState.Playable) {
             //Particle
-            // PlayerParticle();
             PlayParticle();
-            rb.MovePosition(player.transform.position + moveInput.ToIso() * moveInput.normalized.magnitude * 2.5f * Time.deltaTime);
+            rb.MovePosition(player.transform.position + moveInput.ToIso() * moveInput.normalized.magnitude * 4f * Time.deltaTime);
         }
     }
 
@@ -398,7 +513,6 @@ public class LevelController : MonoBehaviour
         ePress = parameters.GetBoolExtra(INPUT_E, false);
         if(ePress && levelState == LevelState.Playable) {
             PlayerData.ePress = true;
-            
         }
         else {
             PlayerData.ePress = false;
@@ -410,13 +524,12 @@ public class LevelController : MonoBehaviour
     private void UpdateCounter() {
         counter = PlayerData.counterDaikon;
         
-        if(counter == 0) meterValue_Vert = 0;
+        if(counter == 0) meterValue_Vert = 0; 
         else if(counter == 1) meterValue_Vert = 25;
         else if(counter == 2) meterValue_Vert = 50;
         else if(counter == 3) meterValue_Vert = 75;
         else {
             meterValue_Vert = 100;
-            
             HideMeters();
             EnablePauseCamera_Variation();
 
@@ -442,6 +555,10 @@ public class LevelController : MonoBehaviour
                 else ground.Stop();
                 break;
             case 2:
+                if(spacePress) water.Play();
+                else water.Stop();
+                break;
+            case 3:
                 ParticleSystem.EmissionModule temp = playerDust.emission;
                 if(PlayerData.playerState == PlayerState.Moving) temp.enabled = true;
                 else temp.enabled = false;
@@ -452,8 +569,15 @@ public class LevelController : MonoBehaviour
     //Post Process Things
     private void InitPostProcess() {
         float chancesFloat = UnityEngine.Random.Range(0f,1f);
-        if(chancesFloat <= 0.05) {
+        if(chancesFloat <= 0.25) {
+            //Score
+            canvasObject.SetActive(false);
+            canvasObjectALT.SetActive(true);
+
+            //Toggle
             enableHorror = true;
+            PlayerData.enableHorror = true;
+
             //PostProcess
             pauseProfile.SetActive(false);
             horrorPauseProfile.SetActive(false);
@@ -466,6 +590,7 @@ public class LevelController : MonoBehaviour
             //Elements
             pauseText.SetActive(false);
         }
+        else PlayerData.enableHorror = false;
     }
 
     //HideStuffs
@@ -478,6 +603,9 @@ public class LevelController : MonoBehaviour
                 meterUI.SetActive(false);
                 break;
             case 2:
+                fillUI.SetActive(false);
+                break;
+            case 3:
                 meterUI_Vert.SetActive(false);
                 break;
         }
@@ -502,6 +630,8 @@ public class LevelController : MonoBehaviour
     }
 
     private void EnableEndCamera() {
+        pauseProfile.layer = LayerMask.NameToLayer("PostProcessing");
+
         //Elements
         endScreen.SetActive(true);
 
@@ -530,8 +660,11 @@ public class LevelController : MonoBehaviour
 
     //Animation Stuffs
     //Score Animation
-    private void EnableAnim() {
-        GameObject tempCanvas = Instantiate(canvasObject, canvasObject.transform.position, Quaternion.identity);
+    public void EnableAnim() {
+        GameObject tempCanvas;
+        if(enableHorror) tempCanvas = Instantiate(canvasObjectALT, canvasObject.transform.position, Quaternion.identity);
+        else tempCanvas = Instantiate(canvasObject, canvasObject.transform.position, Quaternion.identity);
+        
         canvasList.Add(tempCanvas);
 
         tempCanvas.GetComponent<CanvasGroup>().alpha = 0;

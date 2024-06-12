@@ -7,6 +7,10 @@ public class InputController : MonoBehaviour
     //Scene 1 Controls
     public bool interactPress { get; private set; }
 
+    //Scene 2 Controls
+    public bool interactHold { get; private set; }
+    public bool interactReleased { get; private set; }
+
     //Scene 3 Controls
     public float Horizontal { get; private set; }
     public float Vertical { get; private set; }
@@ -42,7 +46,8 @@ public class InputController : MonoBehaviour
     private void UpdateInputs() {
         //Scene1
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) loadLevelOne();
-        else if(SceneManager.GetActiveScene().buildIndex == 2)loadLevelThree();
+        else if(SceneManager.GetActiveScene().buildIndex == 2)loadLevelTwo();
+        else if(SceneManager.GetActiveScene().buildIndex == 3)loadLevelThree();
     }
 
     private void loadLevelOne() {
@@ -50,6 +55,11 @@ public class InputController : MonoBehaviour
 
         Broadcaster.Instance.AddBoolParam(LevelController.INPUT_PRESS, EventNames.KeyboardInput.INTERACT_PRESS, interactPress);
         Broadcaster.Instance.AddBoolParam(SFXController.PLAY_CLIP_S1, EventNames.KeyboardInput.INTERACT_PRESS, interactPress);
+    }
+
+    private void loadLevelTwo() {
+        interactPress = _Scene1.WasPressedThisFrame();
+        Broadcaster.Instance.AddBoolParam(LevelController.INPUT_PRESS, EventNames.KeyboardInput.INTERACT_PRESS, interactPress);
     }
 
     private void loadLevelThree() {

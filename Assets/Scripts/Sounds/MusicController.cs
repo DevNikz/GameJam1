@@ -10,7 +10,7 @@ public class MusicController : MonoBehaviour
 
     public AudioSource audioSource;
 
-    [SerializeField] public float Volume = 0.7f;
+    [SerializeField] public float Volume = 0.4f;
 
     public AudioClip[] clips;
     
@@ -40,7 +40,6 @@ public class MusicController : MonoBehaviour
 
     private void CheckState() {
         if(GameTimeManager.Instance.gameState == GameState.End) {
-            Debug.Log("Stopping Music");
             gameState = GameState.End;
             audioSource.clip = clips[1];
             audioSource.Play();

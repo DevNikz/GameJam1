@@ -14,7 +14,8 @@ public class UIController : MonoBehaviour
 
         //Init Observer for Scene1
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) EventBroadcaster.Instance.AddObserver(EventNames.Scene1.INCREASE_METER, this.IncreaseMeter);
-        if(SceneManager.GetActiveScene().buildIndex == 2) EventBroadcaster.Instance.AddObserver(EventNames.Scene1.INCREASE_METER_VERT, this.IncreaseMeterVert);
+        else if(SceneManager.GetActiveScene().buildIndex == 2 ) EventBroadcaster.Instance.AddObserver(EventNames.Scene1.INCREASE_METER_VERT, this.IncreaseMeterVert);
+        else if(SceneManager.GetActiveScene().buildIndex == 3 ) EventBroadcaster.Instance.AddObserver(EventNames.Scene1.INCREASE_METER_VERT, this.IncreaseMeterVert);
     }
 
     private void OnDestroy() {
@@ -34,7 +35,7 @@ public class UIController : MonoBehaviour
         rt.sizeDelta = new Vector2(rt.sizeDelta.x, meterValue);
     }
 
-    //Level 3
+    //Level 2 and 3
     private void IncreaseMeterVert(Parameters parameters) {
         meterValue = parameters.GetIntExtra(INCREASE_METER_VERT, 0);
         this.UpdateMeter_Vert();

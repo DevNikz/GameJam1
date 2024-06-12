@@ -18,7 +18,7 @@ public class GameTimeManager : MonoBehaviour
     [Header("Timer Settings")]
     
     [Tooltip("Set Timer Throughout The Game")]
-    [SerializeField] public float timer = 30f;
+    [SerializeField] public float timer = 120f;
 
     [Tooltip("Is Timer paused?")]
     [SerializeField] public TimerState timerState = TimerState.Playing;
@@ -73,6 +73,7 @@ public class GameTimeManager : MonoBehaviour
             timer -= Time.deltaTime;
             PlayerData.Timer = timer;
             if(timer <= 0) {
+                timer = 0;
                 gameState = GameState.End;
                 timerState = TimerState.Paused;
                 Time.timeScale = 0;

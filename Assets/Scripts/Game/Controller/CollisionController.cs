@@ -9,14 +9,19 @@ public class CollisionController : MonoBehaviour
     public List<GameObject> tempInput;
     private GameObject highlight;
     private GameObject Daikon;
-    private GameObject tempCanvas;
+    private GameObject tempInputUI;
     private ParticleSystem particle;
+    public GameObject canvasObject;
+    public GameObject canvasObjectALT;
+    public List<GameObject> canvasList;
 
     private void Start() {
         playerCollider = this.gameObject.GetComponent<Collider>();
         input.SetActive(false);
 
-        
+        //Score
+        canvasObject.GetComponent<CanvasGroup>().alpha = 0;
+        canvasObjectALT.GetComponent<CanvasGroup>().alpha = 0;
     }
 
     private void OnTriggerEnter(Collider other) {
@@ -26,13 +31,13 @@ public class CollisionController : MonoBehaviour
             highlight = other.transform.Find("Highlight").gameObject;
             highlight.SetActive(true);
             
-            tempCanvas = Instantiate(input, input.transform.position, Quaternion.identity);
-            tempInput.Add(tempCanvas);
+            tempInputUI = Instantiate(input, input.transform.position, Quaternion.identity);
+            tempInput.Add(tempInputUI);
             tempInput[0].SetActive(true);
         }
     }
 
-        private void OnTriggerStay(Collider other) {
+    private void OnTriggerStay(Collider other) {
         if (other.gameObject.tag == "Bounds")
         {
             //Check if pressed, enable object
@@ -47,6 +52,9 @@ public class CollisionController : MonoBehaviour
                     Destroy(tempInput[0]);
                     tempInput.Remove(tempInput[0]);
                 }
+
+                //Score
+                EnableAnim();
 
                 //Set Daikon To true
                 Daikon = other.transform.Find("Daikon").gameObject;
@@ -63,7 +71,9 @@ public class CollisionController : MonoBehaviour
                 Broadcaster.Instance.AddBoolParam(CameraShake.CAMERA_SHAKE, EventNames.Scene1.CAMERA_SHAKE, true);
 
                 PlayerData.counterDaikon += 1;
-                PlayerData.Score += 10;
+                
+                if(PlayerData.enableHorror) PlayerData.Score += 30;
+                else PlayerData.Score += 10;
             }
         }
     }
@@ -80,5 +90,26 @@ public class CollisionController : MonoBehaviour
                 tempInput.Remove(tempInput[0]);
             }
         }
+    }
+
+    public void EnableAnim() {
+        GameObject tempCanvas;
+        if(PlayerData.enableHorror) tempCanvas = Instantiate(canvasObjectALT, canvasObject.transform.position, Quaternion.identity);
+        else tempCanvas = Instantiate(canvasObject, canvasObject.transform.position, Quaternion.identity);
+        
+        canvasList.Add(tempCanvas);
+
+        tempCanvas.GetComponent<CanvasGroup>().alpha = 0;
+        
+        LeanTween.alphaCanvas(tempCanvas.GetComponent<CanvasGroup>(), 1, 0.35f);
+        LeanTween.moveLocalY(tempCanvas.GetComponentInChildren<RectTransform>().gameObject, 7.39f, 0.25f).setOnComplete(FadeOut);
+    }
+
+    private void FadeOut() {
+        canvasList[0].GetComponent<CanvasGroup>().alpha = 0;
+        LeanTween.alphaCanvas(canvasList[0].GetComponent<CanvasGroup>(), 0, 0.5f).delay = 0.2f;
+
+        Destroy(canvasList[0]);
+        canvasList.Remove(canvasList[0]);
     }
 }

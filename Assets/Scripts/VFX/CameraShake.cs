@@ -24,7 +24,12 @@ public class CameraShake : MonoBehaviour
         }
 
         else if(SceneManager.GetActiveScene().buildIndex == 2) {
-            ShakeIntensity = 1f;
+            ShakeIntensity = 0.5f;
+            ShakeTime = 0.1f;
+        }
+
+        else if(SceneManager.GetActiveScene().buildIndex == 3) {
+            ShakeIntensity = 1.5f;
             ShakeTime = 0.1f;
         }
 
@@ -46,7 +51,6 @@ public class CameraShake : MonoBehaviour
 
     private void EnableShake(Parameters parameters) {
         inputPress = parameters.GetBoolExtra(CAMERA_SHAKE, false);
-        Debug.Log(inputPress);
         if(inputPress) ShakeCamera();
     }
 

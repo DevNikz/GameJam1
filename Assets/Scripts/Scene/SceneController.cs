@@ -18,24 +18,24 @@ public class SceneController : MonoBehaviour
     }
 
     public void ChangeSceneManager() {
-        if(SceneManager.GetActiveScene().buildIndex == 0) { 
-            LoadScene1();
-        }
-        else if(SceneManager.GetActiveScene().buildIndex == 1) {
-            LoadScene1();
-        }
-        else if(SceneManager.GetActiveScene().buildIndex == 2) {
-            LoadScene3();
-        }
+        if(SceneManager.GetActiveScene().buildIndex == 0) LoadScene1();
+        else if(SceneManager.GetActiveScene().buildIndex == 1) LoadScene2();
+        else if(SceneManager.GetActiveScene().buildIndex == 2) LoadScene3();
+        else if(SceneManager.GetActiveScene().buildIndex == 3) LoadScene1();
     }
 
     private void LoadScene1() {
         currentScene = 1;
         SceneManager.LoadScene(currentScene);
     }
+    
+    private void LoadScene2() {
+        currentScene = 2;
+        SceneManager.LoadScene(currentScene);
+    }
 
     private void LoadScene3() {
-        currentScene = 2;
+        currentScene = 3;
         SceneManager.LoadScene(currentScene);
     }
 }

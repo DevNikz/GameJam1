@@ -11,13 +11,13 @@ public class SFXController : MonoBehaviour
     public AudioClip dirt2;
     public AudioClip dirt3;
     public AudioClip dirt4;
-
     //Level 2
     public AudioClip water1;
     private int currentIndex = 0;
     private bool inputPress;
     [SerializeField] public SFXState sfxState = SFXState.Paused;
     public const string PLAY_CLIP_S1 = "PLAY_CLIP_S1";
+    public const string PLAY_CLIP_S2 = "PLAY_CLIP_S2";
     public const string DISABLE_SFX = "DISABLE_SFX";
 
     private void Start() {
@@ -26,6 +26,9 @@ public class SFXController : MonoBehaviour
 
         EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayClip);
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.DISABLE_SFX, this.PlayClip);
+
+        //Level 2
+        if(SceneManager.GetActiveScene().buildIndex == 2) EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.PlayWater);
     }
 
     private void OnDestroy() {
@@ -55,6 +58,16 @@ public class SFXController : MonoBehaviour
                     break;
             }
             currentIndex += 1;
+        }
+    }
+
+    public void PlayWater(Parameters parameters) {
+        inputPress = parameters.GetBoolExtra(PLAY_CLIP_S2,false);
+        sfxState = parameters.GetSFXState(DISABLE_SFX, SFXState.Playing);
+        if(sfxState == SFXState.Paused) Destroy(this);
+
+        if(inputPress && sfxState == SFXState.Playing) {
+            audioSource.PlayOneShot(water1, 0.3f);
         }
     }
 }

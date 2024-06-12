@@ -5398,7 +5398,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!223 &298837714
 Canvas:
   m_ObjectHideFlags: 0
@@ -5619,7 +5619,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 23
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 8400000, guid: 83fcb5edcbb05114783cea291e47a5b0, type: 2}
   m_TargetDisplay: 0
@@ -5644,10 +5644,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1869206534}
   - {fileID: 1736233653}
   - {fileID: 683130686}
   - {fileID: 1085634973}
-  - {fileID: 1869206534}
   m_Father: {fileID: 1228925321}
   m_LocalEulerAnglesHint: {x: -14.46, y: 0, z: 0}
 --- !u!114 &330585547
@@ -12489,7 +12489,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1362495201}
-  Volume: 0.5
+  Volume: 0.4
   clips:
   - {fileID: 8300000, guid: b82dae668781f8242b50977ac948bdb0, type: 3}
   - {fileID: 8300000, guid: 0217bb6b64bf5254f85501d405b0957e, type: 3}
@@ -12643,7 +12643,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startState: 0
   gameState: 0
-  timer: 30
+  timer: 60
   timerState: 0
   Score: 0
 --- !u!4 &1417223340
@@ -18496,7 +18496,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1869206534}
   - component: {fileID: 1869206535}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: EndScreen
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18539,7 +18539,7 @@ VideoPlayer:
   m_TargetMaterialRenderer: {fileID: 0}
   m_TargetMaterialProperty: <noninit>
   m_RenderMode: 1
-  m_AspectRatio: 2
+  m_AspectRatio: 3
   m_DataSource: 0
   m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
@@ -18680,7 +18680,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: SCENE 1 TEST
+  m_text: SUNNY POV
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -19132,12 +19132,18 @@ MonoBehaviour:
   levelState: 0
   vfxState: 1
   spacePress: 0
+  spaceHold: 0
+  spaceReleased: 0
   ePress: 0
   meterValue: 0
+  meterFill: 0
+  fillUI: {fileID: 0}
+  dropUI: {fileID: 0}
   counter: 0
   meterValue_Vert: 0
   enableHorror: 0
   canvasObject: {fileID: 0}
+  canvasObjectALT: {fileID: 0}
   canvasList: []
 --- !u!114 &8380125924075952117
 MonoBehaviour:
