@@ -3,18 +3,11 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 public class MusicController : MonoBehaviour
 {
     public static MusicController Instance;
-
-    public AudioSource audioSource;
-
-    [SerializeField] public float Volume = 0.4f;
-
-    public AudioClip[] clips;
-    
-    public GameState gameState = GameState.Play;
+    public GameObject Theme;
+    public GameObject Gameover;
 
     private void Awake() {
         if(Instance == null) {
@@ -22,16 +15,6 @@ public class MusicController : MonoBehaviour
             DontDestroyOnLoad(gameObject);
         } 
         else Destroy(gameObject);
-        
-    }
-
-    private void Start() {
-        audioSource = this.gameObject.GetComponent<AudioSource>();
-        audioSource.volume = Volume;
-        audioSource.loop = true;
-
-        audioSource.clip = clips[0];
-        audioSource.Play();
     }
 
     private void Update() {
@@ -40,10 +23,12 @@ public class MusicController : MonoBehaviour
 
     private void CheckState() {
         if(GameTimeManager.Instance.gameState == GameState.End) {
-            gameState = GameState.End;
-            audioSource.clip = clips[1];
-            audioSource.Play();
-            Destroy(this);
+            Theme.SetActive(false);
+            Gameover.SetActive(true);
+        }
+        else {
+            Theme.SetActive(true);
+            Gameover.SetActive(false);
         }
     }
 

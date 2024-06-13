@@ -5,7 +5,7 @@ using UnityEngine;
 public class DropMovement : MonoBehaviour
 {
 
-    [SerializeField] public float Speed = 1.0f;
+    [SerializeField] public float Speed = 2.0f;
 
     private Vector3 movement;
 

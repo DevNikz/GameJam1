@@ -24,6 +24,11 @@ public class SceneController : MonoBehaviour
         else if(SceneManager.GetActiveScene().buildIndex == 3) LoadScene1();
     }
 
+    public void RestartGame() {
+        currentScene = 0;
+        SceneManager.LoadScene(currentScene);
+    }
+
     private void LoadScene1() {
         currentScene = 1;
         SceneManager.LoadScene(currentScene);

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.SocialPlatforms.Impl;
 
 public class LevelController : MonoBehaviour
 {
@@ -12,6 +10,7 @@ public class LevelController : MonoBehaviour
     //Game
     [Header("States")]
     [SerializeField] public StartState startState = StartState.Yes;
+    [SerializeField] public StartState startState2 = StartState.Yes;
     [SerializeField] public GameState gameState = GameState.Play; 
     [SerializeField] public LevelState levelState = LevelState.Playable;
     [SerializeField] public VFXState vfxState = VFXState.Paused;
@@ -170,6 +169,9 @@ public class LevelController : MonoBehaviour
 
         //Level 2 Specific
         else if(SceneManager.GetActiveScene().buildIndex == 2) { 
+            inputUI = transform.Find("INPUT UI").gameObject;
+            inputText = inputUI.transform.Find("Input").GetComponent<TextMeshProUGUI>();
+            
             fillUI = transform.Find("QTE UI").gameObject;
             fillUI.SetActive(true);
 
@@ -252,6 +254,11 @@ public class LevelController : MonoBehaviour
         water = this.transform.Find("Water").GetComponentInChildren<ParticleSystem>();
         water.Stop();
 
+        //Level 2 Specific
+        pop = this.transform.Find("Pop Particle").GetComponentInChildren<ParticleSystem>();
+        pop.Clear();
+        EventBroadcaster.Instance.AddObserver(EventNames.KeyboardInput.INTERACT_PRESS, this.SecondRun);
+
         //Init PostProcess
         InitPostProcess();
 
@@ -316,6 +323,27 @@ public class LevelController : MonoBehaviour
             }
         }
     }
+
+    private void SecondRun(Parameters parameters) {
+        spacePress = parameters.GetBoolExtra(INPUT_PRESS, false);
+        if(startState2 == StartState.Yes) {
+            BlinkAnim();
+            if(spacePress) {
+                //Set State to no
+                startState2 = StartState.No;
+
+                //Disable UI then play Particle
+                this.inputUI.SetActive(false);
+                DestroyInputUI();
+
+                //Play SFX
+                this.pop.Play();
+
+                //Change First Run to false
+                Broadcaster.Instance.AddStartState(GameTimeManager.CHANGE_RUN2, EventNames.Scene1.CHANGE_RUN2, startState2);
+            }
+        }
+    }
     
     //Level One
     private void InputPress(Parameters parameters) {
@@ -332,15 +360,15 @@ public class LevelController : MonoBehaviour
         gameState = GameTimeManager.Instance.gameState;
         if (gameState == GameState.Play) {
             if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) PlayGame();
+            EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.RESTART_GAME);
         }
         else {
-            Time.timeScale = 0;
             gameState = GameState.End;
             levelState = LevelState.Unplayable;
             
             //Remove Observer
-            EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
-            EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_E);
+            // EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_PRESS);
+            // EventBroadcaster.Instance.RemoveObserver(EventNames.KeyboardInput.INTERACT_E);
 
             if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) {
                 ground.Stop();
@@ -352,8 +380,33 @@ public class LevelController : MonoBehaviour
 
             //Enable Pause Camera
             EnableEndCamera();
+
+            EventBroadcaster.Instance.AddObserver(EventNames.Scene1.RESTART_GAME, this.RestartGame);
         }
         
+    }
+
+    private void RestartGame(Parameters parameters) {
+        spacePress = parameters.GetBoolExtra(INPUT_PRESS, false);
+        if(spacePress) {
+            //Change Player Data
+            PlayerData.Score = 0;
+            PlayerData.Timer = UnityEngine.Random.Range(60f, 120f);
+
+            //Change Local Data
+            startState = StartState.Yes;
+            startState2 = StartState.Yes;
+            gameState = GameState.Play;
+
+            //Change Manager Data
+            GameTimeManager.Instance.gameState = GameState.Play;
+            GameTimeManager.Instance.timerState = TimerState.Playing;
+            GameTimeManager.Instance.timer = 60;
+
+            Time.timeScale = 1;
+
+            SceneController.Instance.RestartGame();
+        }
     }
 
     private void PlayGame() {
@@ -435,7 +488,7 @@ public class LevelController : MonoBehaviour
         if(dropPos > -15 && dropPos < 15) {
 
             //Update Meter
-            meterFill += 20;
+            meterFill += 10;
 
             //Enable Camera Shake when Input
             vfxState = VFXState.Playing;

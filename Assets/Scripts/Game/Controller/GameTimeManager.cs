@@ -11,6 +11,7 @@ public class GameTimeManager : MonoBehaviour
 
     [Tooltip("First Running The Game?")]
     [SerializeField] public StartState startState = StartState.Yes;
+    [SerializeField] public StartState startState2 = StartState.Yes;
 
     [Tooltip("Current Game State")]
     [SerializeField] public GameState gameState = GameState.Play;
@@ -27,7 +28,7 @@ public class GameTimeManager : MonoBehaviour
     [SerializeField] public int Score;
 
     public const string CHANGE_RUN = "CHANGE_RUN";
-
+    public const string CHANGE_RUN2 = "CHANGE_RUN2";
     public const string PAUSE_TIMER = "PAUSE_TIMER";
 
     private void Awake() {
@@ -39,30 +40,19 @@ public class GameTimeManager : MonoBehaviour
     }
 
     private void Start() {
-        InitStart();
-    }
-
-    private void OnDestroy() {
-        RemoveObservers();
-    }
-
-    private void InitStart() {
-        InitVars();
-        AddObservers();
-    }
-
-    private void InitVars() {
         startState = StartState.Yes;
+        startState2 = StartState.Yes;
         gameState = GameState.Play;
-    }
+        timer = Random.Range(60f, 120f);
 
-    private void AddObservers() {
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.CHANGE_RUN, this.DetectRun);
+        EventBroadcaster.Instance.AddObserver(EventNames.Scene1.CHANGE_RUN2, this.DetectRun2);
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.PAUSE_TIMER, this.DetectTimer);
     }
 
-    private void RemoveObservers() {
+    private void OnDestroy() {
         EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.CHANGE_RUN);
+        EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.CHANGE_RUN2);
         EventBroadcaster.Instance.RemoveObserver(EventNames.Scene1.PAUSE_TIMER);
     }
 
@@ -76,18 +66,16 @@ public class GameTimeManager : MonoBehaviour
                 timer = 0;
                 gameState = GameState.End;
                 timerState = TimerState.Paused;
-                Time.timeScale = 0;
             }
         }
     }
 
     private void DetectRun(Parameters parameters) {
         startState = parameters.GetStartState(CHANGE_RUN, StartState.Yes);
+    }
 
-        if(startState == StartState.Yes) Debug.Log("Run: First Run!");
-        else {
-            startState = StartState.No;
-        }
+    private void DetectRun2(Parameters parameters) {
+        startState2 = parameters.GetStartState(CHANGE_RUN2, StartState.Yes);
     }
 
     private void DetectTimer(Parameters parameters) {

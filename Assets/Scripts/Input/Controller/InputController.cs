@@ -48,6 +48,7 @@ public class InputController : MonoBehaviour
         if(SceneManager.GetActiveScene().buildIndex == 0 || SceneManager.GetActiveScene().buildIndex == 1) loadLevelOne();
         else if(SceneManager.GetActiveScene().buildIndex == 2)loadLevelTwo();
         else if(SceneManager.GetActiveScene().buildIndex == 3)loadLevelThree();
+        loadRestart();
     }
 
     private void loadLevelOne() {
@@ -83,5 +84,10 @@ public class InputController : MonoBehaviour
 
         Broadcaster.Instance.AddVectorParam(LevelController.KEY_MOVE, EventNames.KeyboardInput.MOVE_INPUT, MoveInput);
         Broadcaster.Instance.AddBoolParam(LevelController.INPUT_E, EventNames.KeyboardInput.INTERACT_E, interactE);
+    }
+
+    private void loadRestart() {
+        interactPress = _Scene1.WasPressedThisFrame();
+        Broadcaster.Instance.AddBoolParam(LevelController.INPUT_PRESS, EventNames.Scene1.RESTART_GAME, interactPress);
     }
 }
