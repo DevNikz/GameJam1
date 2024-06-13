@@ -391,7 +391,6 @@ public class LevelController : MonoBehaviour
         if(spacePress) {
             //Change Player Data
             PlayerData.Score = 0;
-            PlayerData.Timer = UnityEngine.Random.Range(60f, 120f);
 
             //Change Local Data
             startState = StartState.Yes;
@@ -401,7 +400,7 @@ public class LevelController : MonoBehaviour
             //Change Manager Data
             GameTimeManager.Instance.gameState = GameState.Play;
             GameTimeManager.Instance.timerState = TimerState.Playing;
-            GameTimeManager.Instance.timer = 60;
+            GameTimeManager.Instance.timer = UnityEngine.Random.Range(60f, 120f);;
 
             Time.timeScale = 1;
 
