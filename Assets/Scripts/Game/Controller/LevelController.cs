@@ -35,6 +35,7 @@ public class LevelController : MonoBehaviour
     public GameObject fillUI;
     public GameObject dropUI;
     private float dropPos;
+    private bool enableParticle;
 
     //Scene 3 Specific
     [Header("Scene 3")]
@@ -311,6 +312,8 @@ public class LevelController : MonoBehaviour
                 //Set State to no
                 startState = StartState.No;
 
+                GameTimeManager.Instance.timerState = TimerState.Playing;
+
                 //Disable UI then play Particle
                 this.inputUI.SetActive(false);
                 DestroyInputUI();
@@ -399,7 +402,7 @@ public class LevelController : MonoBehaviour
 
             //Change Manager Data
             GameTimeManager.Instance.gameState = GameState.Play;
-            GameTimeManager.Instance.timerState = TimerState.Playing;
+            GameTimeManager.Instance.timerState = TimerState.Paused;
             GameTimeManager.Instance.timer = UnityEngine.Random.Range(60f, 120f);;
 
             Time.timeScale = 1;
@@ -481,10 +484,12 @@ public class LevelController : MonoBehaviour
             CheckHit();
         }
         StateHandler();
+        WaterDrop();
     }
 
     private void CheckHit() {
         if(dropPos > -15 && dropPos < 15) {
+            enableParticle = true;
 
             //Update Meter
             meterFill += 10;
@@ -501,7 +506,6 @@ public class LevelController : MonoBehaviour
             else PlayerData.Score += 20;
 
             EnableAnim();
-            PlayParticle();
 
             //If fill is Full
             if(meterFill >= 100) {
@@ -514,8 +518,6 @@ public class LevelController : MonoBehaviour
                 //Pause Func
                 GameTimeManager.Instance.timerState = TimerState.Paused;
 
-                water.Pause();
-
                 //Init Level as Unplayable
                 levelState = LevelState.Unplayable;
 
@@ -527,6 +529,7 @@ public class LevelController : MonoBehaviour
             }
         }
         else {
+            enableParticle = false;
             meterFill -= 10;
             if(meterFill <= 0) {
                 meterFill = 0;
@@ -555,10 +558,9 @@ public class LevelController : MonoBehaviour
         }
     }
 
-    private void PlayerParticle() {
-        ParticleSystem.EmissionModule temp = playerDust.emission;
-        if(PlayerData.playerState == PlayerState.Moving) temp.enabled = true;
-        else temp.enabled = false;
+    private void WaterDrop() {
+        if(enableParticle) water.Play();
+        else water.Stop();
     }
 
     private void InteractPile(Parameters parameters) {
@@ -607,7 +609,7 @@ public class LevelController : MonoBehaviour
                 else ground.Stop();
                 break;
             case 2:
-                if(spacePress) water.Play();
+                if(spacePress && dropPos > -15 && dropPos < 15) water.Play();
                 else water.Stop();
                 break;
             case 3:

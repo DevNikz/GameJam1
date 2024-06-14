@@ -17,6 +17,11 @@ public class MusicController : MonoBehaviour
         else Destroy(gameObject);
     }
 
+    private void Start() {
+        Theme.GetComponent<AudioSource>().volume = 0.2f;
+        Gameover.GetComponent<AudioSource>().volume = 0.2f;
+    }
+
     private void Update() {
         CheckState();
     }

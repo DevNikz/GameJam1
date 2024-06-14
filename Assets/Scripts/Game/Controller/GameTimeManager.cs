@@ -22,7 +22,7 @@ public class GameTimeManager : MonoBehaviour
     [SerializeField] public float timer = 120f;
 
     [Tooltip("Is Timer paused?")]
-    [SerializeField] public TimerState timerState = TimerState.Playing;
+    [SerializeField] public TimerState timerState = TimerState.Paused;
 
     [Header("Score")] 
     [SerializeField] public int Score;
@@ -43,7 +43,9 @@ public class GameTimeManager : MonoBehaviour
         startState = StartState.Yes;
         startState2 = StartState.Yes;
         gameState = GameState.Play;
+        timerState = TimerState.Paused;
         timer = Random.Range(60f, 120f);
+        PlayerData.Timer = timer;
 
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.CHANGE_RUN, this.DetectRun);
         EventBroadcaster.Instance.AddObserver(EventNames.Scene1.CHANGE_RUN2, this.DetectRun2);
